@@ -20,24 +20,11 @@ if (NOT raylib_FOUND)
     FetchContent_MakeAvailable(raylib)
 endif()
 
-find_package(raylib_cpp QUIET)
-if (NOT raylib_cpp_FOUND)
-    if (NOT DEFINED RAYLIB_CPP_VERSION)
-        set(RAYLIB_CPP_VERSION v6.0.0)
-    endif()
-    include(FetchContent)
-    FetchContent_Declare(
-        raylib_cpp
-        GIT_REPOSITORY https://github.com/RobLoach/raylib-cpp.git
-        GIT_TAG ${RAYLIB_CPP_VERSION}
-    )
-    FetchContent_MakeAvailable(raylib_cpp)
-endif()
-
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/terrain_generation.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE raylib raylib_cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:-O3>)
