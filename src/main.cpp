@@ -13,17 +13,32 @@ int main() {
     std::cout << "OMP Max Threads: " << omp_get_max_threads() << std::endl;
 
     // Lógica del Terreno y Experimentación
-    // Se compara secuencial y paralelo
     Terrain terrain(mapSize, terrainSeed);
     BenchmarkResults results = terrain.runBenchmark();
 
-    // Preparar de Visuales
+    // Preparar Visuales
     Model terrainModel = terrain.createModel();
     OrbitCamera camera(cameraRadius, cameraHeight, cameraFOV);
 
     // Main loop
     while (!WindowShouldClose()) {
         // Update
+        if (IsKeyPressed(KEY_C)) {
+            terrain.toggleTexture(terrainModel);
+        }
+
+        if (IsKeyPressed(KEY_SPACE)) {
+            // Nueva semilla
+            terrain.regenerate(GetRandomValue(0, 100000));
+            
+            // Recalcular métricas
+            results = terrain.runBenchmark();
+            
+            // Actualizar modelo 3D
+            UnloadModel(terrainModel);
+            terrainModel = terrain.createModel();
+        }
+
         camera.update(GetFrameTime());
 
         // Draw
@@ -31,13 +46,17 @@ int main() {
             ClearBackground(RAYWHITE);
 
             camera.beginMode();
-                // Terreno centrado
                 DrawModel(terrainModel, (Vector3){ -meshWidth/2.0f, 0, -meshLength/2.0f }, 1.0f, WHITE);
                 DrawGrid(20, 10.0f);
             camera.endMode();
 
-            // Interfaz con resultados del benchmark
+            // Interfaz
             DrawMetricsUI(results);
+            DrawText("ESPACIO: Randomizar | C: Visualización", 
+                     uiIndicatorMarginLeft, 
+                     screenHeight - uiIndicatorMarginBottom, 
+                     uiIndicatorFontSize, 
+                     DARKGRAY);
         EndDrawing();
     }
 

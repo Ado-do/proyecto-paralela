@@ -8,13 +8,15 @@
 using namespace std;
 
 Terrain::Terrain(int size, unsigned int seed) 
-    : m_size(size), m_seed(seed), m_data(size * size), m_textureLoaded(false) {
+    : m_size(size), m_seed(seed), m_data(size * size), 
+      m_usingColor(true), m_texturesLoaded(false) {
     m_pTable = noise::generatePermutationTable(m_seed);
 }
 
 Terrain::~Terrain() {
-    if (m_textureLoaded) {
-        UnloadTexture(m_texture);
+    if (m_texturesLoaded) {
+        UnloadTexture(m_texDebug);
+        UnloadTexture(m_texColor);
     }
 }
 
@@ -57,6 +59,11 @@ BenchmarkResults Terrain::runBenchmark() {
     return { tSeq, tPar, tSeq / tPar };
 }
 
+void Terrain::regenerate(unsigned int newSeed) {
+    m_seed = newSeed;
+    m_pTable = noise::generatePermutationTable(m_seed);
+}
+
 Image Terrain::createHeightImage() {
     Image image = GenImageColor(m_size, m_size, BLACK);
     Color* pixels = (Color*)image.data;
@@ -67,15 +74,56 @@ Image Terrain::createHeightImage() {
     return image;
 }
 
+Image Terrain::createColorImage() {
+    Image image = GenImageColor(m_size, m_size, BLACK);
+    Color* pixels = (Color*)image.data;
+
+    for (int i = 0; i < m_size * m_size; i++) {
+        float h = m_data[i];
+        Color c;
+
+        if (h < heightDeepWater) c = colorDeepWater;
+        else if (h < heightShallowWater) c = colorShallowWater;
+        else if (h < heightSand) c = colorSand;
+        else if (h < heightGrass) c = colorGrass;
+        else if (h < heightRock) c = colorRock;
+        else c = colorSnow;
+
+        pixels[i] = c;
+    }
+    return image;
+}
+
 Model Terrain::createModel() {
-    Image img = createHeightImage();
-    m_texture = LoadTextureFromImage(img);
-    m_textureLoaded = true;
+    // Liberar texturas previas si existen
+    if (m_texturesLoaded) {
+        UnloadTexture(m_texDebug);
+        UnloadTexture(m_texColor);
+    }
 
-    Mesh mesh = GenMeshHeightmap(img, (Vector3){ meshWidth, meshHeight, meshLength });
+    // Generar imágenes
+    Image imgHeight = createHeightImage();
+    Image imgColor = createColorImage();
+
+    // Cargar texturas en GPU
+    m_texDebug = LoadTextureFromImage(imgHeight);
+    m_texColor = LoadTextureFromImage(imgColor);
+    m_texturesLoaded = true;
+
+    // Crear el Mesh usando la imagen de altura
+    Mesh mesh = GenMeshHeightmap(imgHeight, (Vector3){ meshWidth, meshHeight, meshLength });
     Model model = LoadModelFromMesh(mesh);
-    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = m_texture;
 
-    UnloadImage(img);
+    // Aplicar textura según estado actual
+    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = m_usingColor ? m_texColor : m_texDebug;
+
+    UnloadImage(imgHeight);
+    UnloadImage(imgColor);
     return model;
+}
+
+void Terrain::toggleTexture(Model& model) {
+    m_usingColor = !m_usingColor;
+    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = m_usingColor ? m_texColor : m_texDebug;
+    cout << "Modo de visualización: " << (m_usingColor ? "Realista" : "Debug") << endl;
 }
