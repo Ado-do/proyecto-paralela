@@ -3,3 +3,4 @@
 Introducción a la Computación Paralela 2026-1 \
 Alonso Bustos
 
+![demo](https://i.imgur.com/zugQHuw.png)
