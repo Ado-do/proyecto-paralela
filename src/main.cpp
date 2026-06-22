@@ -1,62 +1,103 @@
-#include "raylib.h"
 #include "config.hpp"
+#include "raylib.h"
 #include "terrain.hpp"
 #include "visuals.hpp"
-#include <iostream>
 #include <omp.h>
 
 int main() {
-    // Inicialización
+    // Inicialización de Raylib
     InitWindow(screenWidth, screenHeight, "raymap");
     SetTargetFPS(60);
 
-    std::cout << "OMP Max Threads: " << omp_get_max_threads() << std::endl;
+    // Configuración de hilos
+    int threadOptions[] = {4, 8, 12};
+    int threadIndex = 2;
+    omp_set_num_threads(threadOptions[threadIndex]);
 
-    // Lógica del Terreno y Experimentación
-    Terrain terrain(mapSize, terrainSeed);
+    // Crear objeto terreno y correr benchmark inicial
+    unsigned int currentSeed = 0;
+    int currentOctaves = 8;
+    Terrain terrain(mapSize, currentSeed, currentOctaves);
     BenchmarkResults results = terrain.runBenchmark();
 
-    // Preparar Visuales
+    // Cargar modelo y cámara
     Model terrainModel = terrain.createModel();
     OrbitCamera camera(cameraRadius, cameraHeight, cameraFOV);
 
-    // Main loop
     while (!WindowShouldClose()) {
-        // Update
+        bool needsUpdate = false;
+
+        // Cambiar textura (C)
         if (IsKeyPressed(KEY_C)) {
             terrain.toggleTexture(terrainModel);
         }
 
+        // Rotar hilos (X)
+        if (IsKeyPressed(KEY_X)) {
+            threadIndex = (threadIndex + 1) % 3;
+            omp_set_num_threads(threadOptions[threadIndex]);
+            needsUpdate = true;
+        }
+
+        // Cambiar semilla (Espacio - random, H - restar, L - sumar)
         if (IsKeyPressed(KEY_SPACE)) {
-            // Nueva semilla
-            terrain.regenerate(GetRandomValue(0, 100000));
-            
-            // Recalcular métricas
+            currentSeed = GetRandomValue(0, 100);
+            terrain.regenerate(currentSeed);
+            needsUpdate = true;
+        }
+        if (IsKeyPressed(KEY_H)) {
+            if (currentSeed > 0) {
+                currentSeed--;
+                terrain.regenerate(currentSeed);
+                needsUpdate = true;
+            }
+        }
+        if (IsKeyPressed(KEY_L)) {
+            if (currentSeed < 100) {
+                currentSeed++;
+                terrain.regenerate(currentSeed);
+                needsUpdate = true;
+            }
+        }
+
+        // Cambiar Octavas (J - restar, K - sumar)
+        if (IsKeyPressed(KEY_J)) {
+            if (currentOctaves > 1) {
+                currentOctaves /= 2;
+                terrain.setOctaves(currentOctaves);
+                needsUpdate = true;
+            }
+        }
+        if (IsKeyPressed(KEY_K)) {
+            if (currentOctaves < 8) {
+                currentOctaves *= 2;
+                terrain.setOctaves(currentOctaves);
+                needsUpdate = true;
+            }
+        }
+
+        if (needsUpdate) {
             results = terrain.runBenchmark();
-            
-            // Actualizar modelo 3D
             UnloadModel(terrainModel);
             terrainModel = terrain.createModel();
         }
 
         camera.update(GetFrameTime());
 
-        // Draw
+        // Render
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
             camera.beginMode();
-                DrawModel(terrainModel, (Vector3){ -meshWidth/2.0f, 0, -meshLength/2.0f }, 1.0f, WHITE);
+                DrawModel(terrainModel, (Vector3){-meshWidth / 2.0f, 0, -meshLength / 2.0f}, 1.0f, WHITE);
                 DrawGrid(20, 10.0f);
             camera.endMode();
 
             // Interfaz
             DrawMetricsUI(results);
-            DrawText("ESPACIO: Randomizar | C: Visualización", 
-                     uiIndicatorMarginLeft, 
-                     screenHeight - uiIndicatorMarginBottom, 
-                     uiIndicatorFontSize, 
-                     DARKGRAY);
+            DrawText("ESPACIO: Rand | H/L: Semilla (-/+) | J/K: Octavas (1-8) | X: Hilos | C: Color", 10,
+                    screenHeight - 30, 18, DARKGRAY);
+
         EndDrawing();
     }
 

@@ -28,11 +28,23 @@ void OrbitCamera::endMode() {
 }
 
 void DrawMetricsUI(const BenchmarkResults& results) {
-    DrawRectangle(10, 10, 280, 110, uiPanelColor);
-    DrawRectangleLines(10, 10, 280, 110, uiBorderColor);
+    // Fondo del panel
+    DrawRectangle(10, 10, 280, 280, uiPanelColor);
+    DrawRectangleLines(10, 10, 280, 280, uiBorderColor);
 
-    DrawText("Terrain Generation Metrics", 20, 20, 15, DARKBLUE);
-    DrawText(TextFormat("Sequential: %.2f ms", results.timeSequential), 20, 45, 18, BLACK);
-    DrawText(TextFormat("Parallel:   %.2f ms", results.timeParallel), 20, 65, 18, BLACK);
-    DrawText(TextFormat("Speedup:    %.2fx", results.speedup), 20, 85, 20, DARKGREEN);
+    int y = 20;
+    DrawText("Performance Metrics", 20, y, 15, DARKBLUE); y += 25;
+    DrawText(TextFormat("Threads:     %d", results.numThreads), 20, y, 18, DARKPURPLE); y += 20;
+    DrawText(TextFormat("Sequential:  %.2f ms", results.timeSequential), 20, y, 18, BLACK); y += 20;
+    DrawText(TextFormat("Parallel:    %.2f ms", results.timeParallel), 20, y, 18, BLACK); y += 20;
+    DrawText(TextFormat("Speedup:     %.2fx", results.speedup), 20, y, 20, DARKGREEN); y += 22;
+    DrawText(TextFormat("Efficiency:  %.1f%%", results.efficiency), 20, y, 18, DARKGREEN); y += 20;
+    DrawText(TextFormat("Cost (p*Tp): %.2f ms", results.cost), 20, y, 18, MAROON); y += 30;
+
+    DrawText("Terrain Parameters", 20, y, 15, DARKBLUE); y += 25;
+    DrawText(TextFormat("Seed:        %u", results.seed), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Scale:       %.2f", results.scale), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Octaves:     %d", results.octaves), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Persistence: %.2f", results.persistence), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Lacunarity:  %.2f", results.lacunarity), 20, y, 16, DARKGRAY);
 }
