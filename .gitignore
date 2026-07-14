@@ -1,9 +1,10 @@
 .cache/
 build/
 docs/
-results/
 report/
 
+results/*.csv
+results/plot/draws/
 .clangd
 *.png
 gmon.out
