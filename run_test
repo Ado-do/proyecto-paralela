@@ -1,0 +1,2 @@
+#!/bin/sh
+cmake --build build --target raymap_tests --parallel && cd build && ctest --output-on-failure

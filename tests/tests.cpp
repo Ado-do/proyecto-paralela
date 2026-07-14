@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 #include "../src/noise.hpp"
-#include "../src/terrain.hpp"
+#include "../src/heightmap.hpp"
 #include <vector>
 #include <cmath>
 
@@ -31,9 +31,9 @@ TEST_CASE("Noise generation basics") {
 }
 
 TEST_CASE("Terrain sequential and parallel equivalence") {
-    Terrain terrain(64, 42, 4);
+    Heightmap heightmap(64, 42, 4);
 
-    BenchmarkResults res = terrain.runBenchmark();
+    BenchmarkResults res = heightmap.runBenchmark();
 
     CHECK(res.timeSequential >= 0.0);
     CHECK(res.timeParallel >= 0.0);
@@ -41,21 +41,21 @@ TEST_CASE("Terrain sequential and parallel equivalence") {
 }
 
 TEST_CASE("Erosion stability and execution") {
-    Terrain terrain(64, 7, 4);
-    terrain.runBenchmark();
+    Heightmap heightmap(64, 7, 4);
+    heightmap.runBenchmark();
 
     SUBCASE("Sequential Erosion") {
-        double time = terrain.applyErosion(ErosionMode::SEQUENTIAL);
+        double time = heightmap.applyErosion(ErosionMode::SEQUENTIAL);
         CHECK(time >= 0.0);
     }
 
     SUBCASE("Parallel Atomic Erosion") {
-        double time = terrain.applyErosion(ErosionMode::PARALLEL_ATOMIC);
+        double time = heightmap.applyErosion(ErosionMode::PARALLEL_ATOMIC);
         CHECK(time >= 0.0);
     }
 
     SUBCASE("Parallel Local Buffers Erosion") {
-        double time = terrain.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
+        double time = heightmap.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
         CHECK(time >= 0.0);
     }
 }

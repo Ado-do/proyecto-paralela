@@ -1,5 +1,7 @@
 .cache/
 build/
 docs/
+results/
+
 .clangd
 *.png

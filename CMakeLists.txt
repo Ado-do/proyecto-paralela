@@ -20,18 +20,29 @@ if (NOT raylib_FOUND)
     FetchContent_MakeAvailable(raylib)
 endif()
 
+# --- Raymap (Visualizador)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/noise.cpp
     src/terrain.cpp
     src/visuals.cpp
+    src/heightmap.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:-O3>)
 
-# --- Testing ---
+# --- Benchmarks
+add_executable(raymap_benchmark
+    src/benchmark.cpp
+    src/noise.cpp
+    src/heightmap.cpp
+)
+target_link_libraries(raymap_benchmark PRIVATE OpenMP::OpenMP_CXX)
+target_compile_options(raymap_benchmark PRIVATE $<$<CONFIG:Release>:-O3>)
+
+# --- Testing
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 enable_testing()
 
@@ -46,12 +57,10 @@ FetchContent_MakeAvailable(doctest)
 add_executable(raymap_tests
     tests/tests.cpp
     src/noise.cpp
-    src/terrain.cpp
+    src/heightmap.cpp
 )
 
-target_link_libraries(raymap_tests PRIVATE raylib)
 target_link_libraries(raymap_tests PRIVATE OpenMP::OpenMP_CXX)
 target_link_libraries(raymap_tests PRIVATE doctest::doctest)
 
 add_test(NAME CoreTests COMMAND raymap_tests)
-
