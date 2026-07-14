@@ -33,25 +33,25 @@ void DrawMetricsUI(const BenchmarkResults& results) {
     DrawRectangleLines(10, 10, 280, 380, uiBorderColor);
 
     int y = 20;
-    DrawText("Performance Metrics", 20, y, 15, DARKBLUE); y += 25;
-    DrawText(TextFormat("Threads:     %d", results.numThreads), 20, y, 18, DARKPURPLE); y += 20;
-    DrawText(TextFormat("Sequential:  %.2f ms", results.timeSequential), 20, y, 18, BLACK); y += 20;
-    DrawText(TextFormat("Parallel:    %.2f ms", results.timeParallel), 20, y, 18, BLACK); y += 20;
-    DrawText(TextFormat("Speedup:     %.2fx", results.speedup), 20, y, 20, DARKGREEN); y += 22;
-    DrawText(TextFormat("Efficiency:  %.1f%%", results.efficiency), 20, y, 18, DARKGREEN); y += 20;
-    DrawText(TextFormat("Cost (p*Tp): %.2f ms", results.cost), 20, y, 18, MAROON); y += 30;
+    DrawText("Métricas de Rendimiento", 20, y, 15, DARKBLUE); y += 25;
+    DrawText(TextFormat("Hilos:        %d", results.numThreads), 20, y, 18, DARKPURPLE); y += 20;
+    DrawText(TextFormat("Secuencial:   %.2f ms", results.timeSequential), 20, y, 18, BLACK); y += 20;
+    DrawText(TextFormat("Paralelo:     %.2f ms", results.timeParallel), 20, y, 18, BLACK); y += 20;
+    DrawText(TextFormat("Speedup:      %.2fx", results.speedup), 20, y, 20, DARKGREEN); y += 22;
+    DrawText(TextFormat("Eficiencia:   %.1f%%", results.efficiency), 20, y, 18, DARKGREEN); y += 20;
+    DrawText(TextFormat("Costo (p*Tp):  %.2f ms", results.cost), 20, y, 18, MAROON); y += 30;
 
-    DrawText("Erosion Metrics", 20, y, 15, DARKBLUE); y += 25;
-    const char* modeStr = (results.erosionMode == ErosionMode::SEQUENTIAL) ? "Sequential" :
-                          (results.erosionMode == ErosionMode::PARALLEL_ATOMIC) ? "Parallel (Atomic)" :
-                          "Parallel (Local Buffers)";
-    DrawText(TextFormat("Mode: %s", modeStr), 20, y, 15, DARKPURPLE); y += 20;
-    DrawText(TextFormat("Time: %.2f ms", results.timeErosion), 20, y, 16, MAROON); y += 30;
+    DrawText("Métricas de Erosión", 20, y, 15, DARKBLUE); y += 25;
+    const char* modeStr = (results.erosionMode == ErosionMode::SEQUENTIAL) ? "Secuencial" :
+                          (results.erosionMode == ErosionMode::PARALLEL_ATOMIC) ? "Paralelo (Atómico)" :
+                          "Paralelo (Buffers Locales)";
+    DrawText(TextFormat("Modo:   %s", modeStr), 20, y, 15, DARKPURPLE); y += 20;
+    DrawText(TextFormat("Tiempo: %.2f ms", results.timeErosion), 20, y, 16, MAROON); y += 30;
 
-    DrawText("Terrain Parameters", 20, y, 15, DARKBLUE); y += 25;
-    DrawText(TextFormat("Seed:        %u", results.seed), 20, y, 16, DARKGRAY); y += 18;
-    DrawText(TextFormat("Scale:       %.2f", results.scale), 20, y, 16, DARKGRAY); y += 18;
-    DrawText(TextFormat("Octaves:     %d", results.octaves), 20, y, 16, DARKGRAY); y += 18;
-    DrawText(TextFormat("Persistence: %.2f", results.persistence), 20, y, 16, DARKGRAY); y += 18;
-    DrawText(TextFormat("Lacunarity:  %.2f", results.lacunarity), 20, y, 16, DARKGRAY);
+    DrawText("Parámetros del Terreno", 20, y, 15, DARKBLUE); y += 25;
+    DrawText(TextFormat("Semilla:      %u", results.seed), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Escala:       %.2f", results.scale), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Octavas:      %d", results.octaves), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Persistencia: %.2f", results.persistence), 20, y, 16, DARKGRAY); y += 18;
+    DrawText(TextFormat("Lacunaridad:  %.2f", results.lacunarity), 20, y, 16, DARKGRAY);
 }

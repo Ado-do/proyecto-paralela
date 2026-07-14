@@ -2,6 +2,8 @@
 build/
 docs/
 results/
+report/
 
 .clangd
 *.png
+gmon.out

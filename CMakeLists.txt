@@ -5,6 +5,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Opción para habilitar el perfilamiento con herramientas como gprof o valgrind (-g -pg)
+option(ENABLE_PROFILING "Habilitar compilación con flags de perfilamiento" OFF)
+if(ENABLE_PROFILING)
+    add_compile_options(-g -pg)
+    add_link_options(-pg)
+endif()
+
 # Librerias
 find_package(OpenMP REQUIRED)
 

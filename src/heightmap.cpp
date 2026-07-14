@@ -38,7 +38,7 @@ void Heightmap::generateParallel() {
 }
 
 BenchmarkResults Heightmap::runBenchmark() {
-    cout << "Starting benchmark (Size: " << m_size << "x" << m_size << ", Threads: " << omp_get_max_threads() << ", Octaves: " << m_octaves << ")..." << endl;
+    cout << "Iniciando benchmark (Tamaño: " << m_size << "x" << m_size << ", Hilos: " << omp_get_max_threads() << ", Octavas: " << m_octaves << ")..." << endl;
 
     int numThreads = omp_get_max_threads();
 
@@ -72,12 +72,16 @@ void Heightmap::setOctaves(int octaves) {
     m_octaves = octaves;
 }
 
-double Heightmap::applyErosion(ErosionMode mode) {
+double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
     auto start = chrono::high_resolution_clock::now();
 
     int numThreads = omp_get_max_threads();
+    double tAlloc = 0.0;
+    double tSim = 0.0;
+    double tRed = 0.0;
 
     if (mode == ErosionMode::SEQUENTIAL) {
+        auto startSim = chrono::high_resolution_clock::now();
         mt19937 prng(m_seed);
         uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
 
@@ -186,8 +190,11 @@ double Heightmap::applyErosion(ErosionMode mode) {
                 posY = nextY;
             }
         }
+        auto endSim = chrono::high_resolution_clock::now();
+        tSim = chrono::duration<double, milli>(endSim - startSim).count();
     } 
     else if (mode == ErosionMode::PARALLEL_ATOMIC) {
+        auto startSim = chrono::high_resolution_clock::now();
         #pragma omp parallel
         {
             int threadId = omp_get_thread_num();
@@ -319,10 +326,16 @@ double Heightmap::applyErosion(ErosionMode mode) {
                 }
             }
         }
+        auto endSim = chrono::high_resolution_clock::now();
+        tSim = chrono::duration<double, milli>(endSim - startSim).count();
     } 
     else if (mode == ErosionMode::PARALLEL_LOCAL_BUFFERS) {
+        auto startAlloc = chrono::high_resolution_clock::now();
         vector<vector<float>> localDelta(numThreads, vector<float>(m_size * m_size, 0.0f));
+        auto endAlloc = chrono::high_resolution_clock::now();
+        tAlloc = chrono::duration<double, milli>(endAlloc - startAlloc).count();
 
+        auto startSim = chrono::high_resolution_clock::now();
         #pragma omp parallel
         {
             int threadId = omp_get_thread_num();
@@ -437,8 +450,11 @@ double Heightmap::applyErosion(ErosionMode mode) {
                 }
             }
         }
+        auto endSim = chrono::high_resolution_clock::now();
+        tSim = chrono::duration<double, milli>(endSim - startSim).count();
 
         // Parallel reduction back to m_data
+        auto startRed = chrono::high_resolution_clock::now();
         #pragma omp parallel for
         for (int idx = 0; idx < m_size * m_size; idx++) {
             float sum = 0.0f;
@@ -447,8 +463,19 @@ double Heightmap::applyErosion(ErosionMode mode) {
             }
             m_data[idx] += sum;
         }
+        auto endRed = chrono::high_resolution_clock::now();
+        tRed = chrono::duration<double, milli>(endRed - startRed).count();
     }
 
     auto end = chrono::high_resolution_clock::now();
-    return chrono::duration<double, milli>(end - start).count();
+    double tTotal = chrono::duration<double, milli>(end - start).count();
+
+    if (profile) {
+        profile->totalTime = tTotal;
+        profile->allocationTime = tAlloc;
+        profile->simulationTime = tSim;
+        profile->reductionTime = tRed;
+    }
+
+    return tTotal;
 }

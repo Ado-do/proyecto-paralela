@@ -7,6 +7,14 @@ enum class ErosionMode {
     PARALLEL_LOCAL_BUFFERS
 };
 
+// Estructura para registrar los tiempos de las sub-etapas de erosión
+struct ErosionProfile {
+    double totalTime = 0.0;
+    double allocationTime = 0.0; // Tiempo de asignación de buffers locales
+    double simulationTime = 0.0; // Tiempo de simulación de las gotas
+    double reductionTime = 0.0;  // Tiempo de reducción de los buffers locales a la grilla
+};
+
 struct BenchmarkResults {
     double timeSequential;
     double timeParallel;
@@ -30,7 +38,7 @@ public:
     Heightmap(int size, unsigned int seed, int octaves = 8);
     
     BenchmarkResults runBenchmark();
-    double applyErosion(ErosionMode mode);
+    double applyErosion(ErosionMode mode, ErosionProfile* profile = nullptr);
     void regenerate(unsigned int newSeed);
     void setOctaves(int octaves);
     
