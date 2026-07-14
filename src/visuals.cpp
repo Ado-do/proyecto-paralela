@@ -29,8 +29,8 @@ void OrbitCamera::endMode() {
 
 void DrawMetricsUI(const BenchmarkResults& results) {
     // Fondo del panel
-    DrawRectangle(10, 10, 280, 280, uiPanelColor);
-    DrawRectangleLines(10, 10, 280, 280, uiBorderColor);
+    DrawRectangle(10, 10, 280, 380, uiPanelColor);
+    DrawRectangleLines(10, 10, 280, 380, uiBorderColor);
 
     int y = 20;
     DrawText("Performance Metrics", 20, y, 15, DARKBLUE); y += 25;
@@ -40,6 +40,13 @@ void DrawMetricsUI(const BenchmarkResults& results) {
     DrawText(TextFormat("Speedup:     %.2fx", results.speedup), 20, y, 20, DARKGREEN); y += 22;
     DrawText(TextFormat("Efficiency:  %.1f%%", results.efficiency), 20, y, 18, DARKGREEN); y += 20;
     DrawText(TextFormat("Cost (p*Tp): %.2f ms", results.cost), 20, y, 18, MAROON); y += 30;
+
+    DrawText("Erosion Metrics", 20, y, 15, DARKBLUE); y += 25;
+    const char* modeStr = (results.erosionMode == ErosionMode::SEQUENTIAL) ? "Sequential" :
+                          (results.erosionMode == ErosionMode::PARALLEL_ATOMIC) ? "Parallel (Atomic)" :
+                          "Parallel (Local Buffers)";
+    DrawText(TextFormat("Mode: %s", modeStr), 20, y, 15, DARKPURPLE); y += 20;
+    DrawText(TextFormat("Time: %.2f ms", results.timeErosion), 20, y, 16, MAROON); y += 30;
 
     DrawText("Terrain Parameters", 20, y, 15, DARKBLUE); y += 25;
     DrawText(TextFormat("Seed:        %u", results.seed), 20, y, 16, DARKGRAY); y += 18;

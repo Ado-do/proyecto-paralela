@@ -24,12 +24,29 @@ int main() {
     Model terrainModel = terrain.createModel();
     OrbitCamera camera(cameraRadius, cameraHeight, cameraFOV);
 
+    ErosionMode currentErosionMode = ErosionMode::SEQUENTIAL;
+
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
 
         // Cambiar textura (C)
         if (IsKeyPressed(KEY_C)) {
             terrain.toggleTexture(terrainModel);
+        }
+
+        // Cambiar modo de erosión (V)
+        if (IsKeyPressed(KEY_V)) {
+            currentErosionMode = static_cast<ErosionMode>((static_cast<int>(currentErosionMode) + 1) % 3);
+            results.erosionMode = currentErosionMode;
+        }
+
+        // Aplicar erosión (E)
+        if (IsKeyPressed(KEY_E)) {
+            double tErosion = terrain.applyErosion(currentErosionMode);
+            results.timeErosion = tErosion;
+            results.erosionMode = currentErosionMode;
+            UnloadModel(terrainModel);
+            terrainModel = terrain.createModel();
         }
 
         // Rotar hilos (X)
@@ -78,6 +95,7 @@ int main() {
 
         if (needsUpdate) {
             results = terrain.runBenchmark();
+            results.erosionMode = currentErosionMode;
             UnloadModel(terrainModel);
             terrainModel = terrain.createModel();
         }
@@ -96,6 +114,8 @@ int main() {
             // Interfaz
             DrawMetricsUI(results);
             DrawText("ESPACIO: Rand | H/L: Semilla (-/+) | J/K: Octavas (1-8) | X: Hilos | C: Color", 10,
+                    screenHeight - 55, 18, DARKGRAY);
+            DrawText("E: Aplicar Erosión | V: Cambiar Modo de Erosión", 10,
                     screenHeight - 30, 18, DARKGRAY);
 
         EndDrawing();

@@ -45,3 +45,17 @@ inline const int uiIndicatorFontSize = 20;
 inline const int uiIndicatorMarginBottom = 40;
 inline const int uiIndicatorMarginLeft = 20;
 
+// Parámetros de Erosión Hidráulica
+inline const int erosionDroplets = 50000;
+inline const int dropletMaxLifetime = 30;
+inline const float gravity = 4.0f;
+inline const float friction = 0.1f;
+inline const float initialWater = 1.0f;
+inline const float initialSpeed = 1.0f;
+inline const float capacityFactor = 4.0f;
+inline const float depositionSpeed = 0.1f;
+inline const float erosionSpeed = 0.1f;
+inline const float evaporationRate = 0.05f;
+inline const float inertia = 0.05f; // Factor de inercia para la dirección de movimiento de la gota
+
+

@@ -4,6 +4,8 @@
 #include <chrono>
 #include <omp.h>
 #include <iostream>
+#include <random>
+#include <cmath>
 
 using namespace std;
 
@@ -65,7 +67,8 @@ BenchmarkResults Terrain::runBenchmark() {
 
     return { 
         tSeq, tPar, speedup, efficiency, cost, numThreads,
-        m_seed, terrainNoiseScale, m_octaves, terrainPersistence, terrainLacunarity 
+        m_seed, terrainNoiseScale, m_octaves, terrainPersistence, terrainLacunarity,
+        0.0, ErosionMode::SEQUENTIAL
     };
 }
 
@@ -140,4 +143,385 @@ void Terrain::toggleTexture(Model& model) {
     m_usingColor = !m_usingColor;
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = m_usingColor ? m_texColor : m_texDebug;
     cout << "Modo de visualización: " << (m_usingColor ? "Realista" : "Debug") << endl;
+}
+
+double Terrain::applyErosion(ErosionMode mode) {
+    auto start = chrono::high_resolution_clock::now();
+
+    int numThreads = omp_get_max_threads();
+
+    if (mode == ErosionMode::SEQUENTIAL) {
+        mt19937 prng(m_seed);
+        uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
+
+        for (int i = 0; i < erosionDroplets; i++) {
+            float posX = distCoord(prng);
+            float posY = distCoord(prng);
+            float velX = 0.0f;
+            float velY = 0.0f;
+            float speed = initialSpeed;
+            float water = initialWater;
+            float sediment = 0.0f;
+
+            for (int step = 0; step < dropletMaxLifetime; step++) {
+                int ipx = static_cast<int>(posX);
+                int ipy = static_cast<int>(posY);
+
+                if (ipx < 0 || ipx >= m_size - 1 || ipy < 0 || ipy >= m_size - 1) break;
+
+                float xOffset = posX - ipx;
+                float yOffset = posY - ipy;
+
+                int indexNW = ipy * m_size + ipx;
+                int indexNE = indexNW + 1;
+                int indexSW = (ipy + 1) * m_size + ipx;
+                int indexSE = indexSW + 1;
+
+                float hNW = m_data[indexNW];
+                float hNE = m_data[indexNE];
+                float hSW = m_data[indexSW];
+                float hSE = m_data[indexSE];
+
+                // Calculate gradient
+                float gradX = (hNE - hNW) * (1.0f - yOffset) + (hSE - hSW) * yOffset;
+                float gradY = (hSW - hNW) * (1.0f - xOffset) + (hSE - hNE) * xOffset;
+
+                // Update droplet's direction and position
+                velX = velX * inertia - gradX * (1.0f - inertia);
+                velY = velY * inertia - gradY * (1.0f - inertia);
+
+                float len = sqrt(velX * velX + velY * velY);
+                if (len != 0.0f) {
+                    velX /= len;
+                    velY /= len;
+                }
+
+                float nextX = posX + velX;
+                float nextY = posY + velY;
+
+                if (nextX < 0.0f || nextX >= m_size - 1 || nextY < 0.0f || nextY >= m_size - 1) break;
+
+                // Bilinear height calculation
+                float hOld = hNW * (1.0f - xOffset) * (1.0f - yOffset) +
+                             hNE * xOffset * (1.0f - yOffset) +
+                             hSW * (1.0f - xOffset) * yOffset +
+                             hSE * xOffset * yOffset;
+
+                int nipx = static_cast<int>(nextX);
+                int nipy = static_cast<int>(nextY);
+                float nxOffset = nextX - nipx;
+                float nyOffset = nextY - nipy;
+                int nindexNW = nipy * m_size + nipx;
+                int nindexNE = nindexNW + 1;
+                int nindexSW = (nipy + 1) * m_size + nipx;
+                int nindexSE = nindexSW + 1;
+
+                float hNew = m_data[nindexNW] * (1.0f - nxOffset) * (1.0f - nyOffset) +
+                             m_data[nindexNE] * nxOffset * (1.0f - nyOffset) +
+                             m_data[nindexSW] * (1.0f - nxOffset) * nyOffset +
+                             m_data[nindexSE] * nxOffset * nyOffset;
+
+                float deltaH = hNew - hOld;
+
+                // Update speed
+                if (deltaH < 0.0f) {
+                    speed = sqrt(speed * speed - deltaH * gravity);
+                } else {
+                    speed = max(0.0f, speed - deltaH * gravity);
+                }
+
+                if (speed == 0.0f) break;
+
+                // Calculate capacity
+                float slope = max(-deltaH, 0.0f);
+                float capacity = max(0.0f, speed * water * slope * capacityFactor);
+
+                if (sediment > capacity || deltaH > 0.0f) {
+                    float depositAmount = (deltaH > 0.0f) ? min(deltaH, sediment) : (sediment - capacity) * depositionSpeed;
+                    sediment -= depositAmount;
+
+                    m_data[indexNW] += (1.0f - xOffset) * (1.0f - yOffset) * depositAmount;
+                    m_data[indexNE] += xOffset * (1.0f - yOffset) * depositAmount;
+                    m_data[indexSW] += (1.0f - xOffset) * yOffset * depositAmount;
+                    m_data[indexSE] += xOffset * yOffset * depositAmount;
+                } else {
+                    float erodeAmount = min((capacity - sediment) * erosionSpeed, -deltaH);
+                    sediment += erodeAmount;
+
+                    m_data[indexNW] -= (1.0f - xOffset) * (1.0f - yOffset) * erodeAmount;
+                    m_data[indexNE] -= xOffset * (1.0f - yOffset) * erodeAmount;
+                    m_data[indexSW] -= (1.0f - xOffset) * yOffset * erodeAmount;
+                    m_data[indexSE] -= xOffset * yOffset * erodeAmount;
+                }
+
+                water *= (1.0f - evaporationRate);
+                posX = nextX;
+                posY = nextY;
+            }
+        }
+    } 
+    else if (mode == ErosionMode::PARALLEL_ATOMIC) {
+        #pragma omp parallel
+        {
+            int threadId = omp_get_thread_num();
+            mt19937 prng(m_seed + threadId);
+            uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
+
+            #pragma omp for
+            for (int i = 0; i < erosionDroplets; i++) {
+                float posX = distCoord(prng);
+                float posY = distCoord(prng);
+                float velX = 0.0f;
+                float velY = 0.0f;
+                float speed = initialSpeed;
+                float water = initialWater;
+                float sediment = 0.0f;
+
+                for (int step = 0; step < dropletMaxLifetime; step++) {
+                    int ipx = static_cast<int>(posX);
+                    int ipy = static_cast<int>(posY);
+
+                    if (ipx < 0 || ipx >= m_size - 1 || ipy < 0 || ipy >= m_size - 1) break;
+
+                    float xOffset = posX - ipx;
+                    float yOffset = posY - ipy;
+
+                    int indexNW = ipy * m_size + ipx;
+                    int indexNE = indexNW + 1;
+                    int indexSW = (ipy + 1) * m_size + ipx;
+                    int indexSE = indexSW + 1;
+
+                    float hNW = m_data[indexNW];
+                    float hNE = m_data[indexNE];
+                    float hSW = m_data[indexSW];
+                    float hSE = m_data[indexSE];
+
+                    // Calculate gradient
+                    float gradX = (hNE - hNW) * (1.0f - yOffset) + (hSE - hSW) * yOffset;
+                    float gradY = (hSW - hNW) * (1.0f - xOffset) + (hSE - hNE) * xOffset;
+
+                    // Update droplet's direction and position
+                    velX = velX * inertia - gradX * (1.0f - inertia);
+                    velY = velY * inertia - gradY * (1.0f - inertia);
+
+                    float len = sqrt(velX * velX + velY * velY);
+                    if (len != 0.0f) {
+                        velX /= len;
+                        velY /= len;
+                    }
+
+                    float nextX = posX + velX;
+                    float nextY = posY + velY;
+
+                    if (nextX < 0.0f || nextX >= m_size - 1 || nextY < 0.0f || nextY >= m_size - 1) break;
+
+                    // Bilinear height calculation
+                    float hOld = hNW * (1.0f - xOffset) * (1.0f - yOffset) +
+                                 hNE * xOffset * (1.0f - yOffset) +
+                                 hSW * (1.0f - xOffset) * yOffset +
+                                 hSE * xOffset * yOffset;
+
+                    int nipx = static_cast<int>(nextX);
+                    int nipy = static_cast<int>(nextY);
+                    float nxOffset = nextX - nipx;
+                    float nyOffset = nextY - nipy;
+                    int nindexNW = nipy * m_size + nipx;
+                    int nindexNE = nindexNW + 1;
+                    int nindexSW = (nipy + 1) * m_size + nipx;
+                    int nindexSE = nindexSW + 1;
+
+                    float hNew = m_data[nindexNW] * (1.0f - nxOffset) * (1.0f - nyOffset) +
+                                 m_data[nindexNE] * nxOffset * (1.0f - nyOffset) +
+                                 m_data[nindexSW] * (1.0f - nxOffset) * nyOffset +
+                                 m_data[nindexSE] * nxOffset * nyOffset;
+
+                    float deltaH = hNew - hOld;
+
+                    // Update speed
+                    if (deltaH < 0.0f) {
+                        speed = sqrt(speed * speed - deltaH * gravity);
+                    } else {
+                        speed = max(0.0f, speed - deltaH * gravity);
+                    }
+
+                    if (speed == 0.0f) break;
+
+                    // Calculate capacity
+                    float slope = max(-deltaH, 0.0f);
+                    float capacity = max(0.0f, speed * water * slope * capacityFactor);
+
+                    if (sediment > capacity || deltaH > 0.0f) {
+                        float depositAmount = (deltaH > 0.0f) ? min(deltaH, sediment) : (sediment - capacity) * depositionSpeed;
+                        sediment -= depositAmount;
+
+                        float dNW = (1.0f - xOffset) * (1.0f - yOffset) * depositAmount;
+                        float dNE = xOffset * (1.0f - yOffset) * depositAmount;
+                        float dSW = (1.0f - xOffset) * yOffset * depositAmount;
+                        float dSE = xOffset * yOffset * depositAmount;
+
+                        #pragma omp atomic
+                        m_data[indexNW] += dNW;
+                        #pragma omp atomic
+                        m_data[indexNE] += dNE;
+                        #pragma omp atomic
+                        m_data[indexSW] += dSW;
+                        #pragma omp atomic
+                        m_data[indexSE] += dSE;
+                    } else {
+                        float erodeAmount = min((capacity - sediment) * erosionSpeed, -deltaH);
+                        sediment += erodeAmount;
+
+                        float eNW = (1.0f - xOffset) * (1.0f - yOffset) * erodeAmount;
+                        float eNE = xOffset * (1.0f - yOffset) * erodeAmount;
+                        float eSW = (1.0f - xOffset) * yOffset * erodeAmount;
+                        float eSE = xOffset * yOffset * erodeAmount;
+
+                        #pragma omp atomic
+                        m_data[indexNW] -= eNW;
+                        #pragma omp atomic
+                        m_data[indexNE] -= eNE;
+                        #pragma omp atomic
+                        m_data[indexSW] -= eSW;
+                        #pragma omp atomic
+                        m_data[indexSE] -= eSE;
+                    }
+
+                    water *= (1.0f - evaporationRate);
+                    posX = nextX;
+                    posY = nextY;
+                }
+            }
+        }
+    } 
+    else if (mode == ErosionMode::PARALLEL_LOCAL_BUFFERS) {
+        vector<vector<float>> localDelta(numThreads, vector<float>(m_size * m_size, 0.0f));
+
+        #pragma omp parallel
+        {
+            int threadId = omp_get_thread_num();
+            auto& myDelta = localDelta[threadId];
+            mt19937 prng(m_seed + threadId);
+            uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
+
+            #pragma omp for
+            for (int i = 0; i < erosionDroplets; i++) {
+                float posX = distCoord(prng);
+                float posY = distCoord(prng);
+                float velX = 0.0f;
+                float velY = 0.0f;
+                float speed = initialSpeed;
+                float water = initialWater;
+                float sediment = 0.0f;
+
+                for (int step = 0; step < dropletMaxLifetime; step++) {
+                    int ipx = static_cast<int>(posX);
+                    int ipy = static_cast<int>(posY);
+
+                    if (ipx < 0 || ipx >= m_size - 1 || ipy < 0 || ipy >= m_size - 1) break;
+
+                    float xOffset = posX - ipx;
+                    float yOffset = posY - ipy;
+
+                    int indexNW = ipy * m_size + ipx;
+                    int indexNE = indexNW + 1;
+                    int indexSW = (ipy + 1) * m_size + ipx;
+                    int indexSE = indexSW + 1;
+
+                    float hNW = m_data[indexNW];
+                    float hNE = m_data[indexNE];
+                    float hSW = m_data[indexSW];
+                    float hSE = m_data[indexSE];
+
+                    // Calculate gradient
+                    float gradX = (hNE - hNW) * (1.0f - yOffset) + (hSE - hSW) * yOffset;
+                    float gradY = (hSW - hNW) * (1.0f - xOffset) + (hSE - hNE) * xOffset;
+
+                    // Update droplet's direction and position
+                    velX = velX * inertia - gradX * (1.0f - inertia);
+                    velY = velY * inertia - gradY * (1.0f - inertia);
+
+                    float len = sqrt(velX * velX + velY * velY);
+                    if (len != 0.0f) {
+                        velX /= len;
+                        velY /= len;
+                    }
+
+                    float nextX = posX + velX;
+                    float nextY = posY + velY;
+
+                    if (nextX < 0.0f || nextX >= m_size - 1 || nextY < 0.0f || nextY >= m_size - 1) break;
+
+                    // Bilinear height calculation
+                    float hOld = hNW * (1.0f - xOffset) * (1.0f - yOffset) +
+                                 hNE * xOffset * (1.0f - yOffset) +
+                                 hSW * (1.0f - xOffset) * yOffset +
+                                 hSE * xOffset * yOffset;
+
+                    int nipx = static_cast<int>(nextX);
+                    int nipy = static_cast<int>(nextY);
+                    float nxOffset = nextX - nipx;
+                    float nyOffset = nextY - nipy;
+                    int nindexNW = nipy * m_size + nipx;
+                    int nindexNE = nindexNW + 1;
+                    int nindexSW = (nipy + 1) * m_size + nipx;
+                    int nindexSE = nindexSW + 1;
+
+                    float hNew = m_data[nindexNW] * (1.0f - nxOffset) * (1.0f - nyOffset) +
+                                 m_data[nindexNE] * nxOffset * (1.0f - nyOffset) +
+                                 m_data[nindexSW] * (1.0f - nxOffset) * nyOffset +
+                                 m_data[nindexSE] * nxOffset * nyOffset;
+
+                    float deltaH = hNew - hOld;
+
+                    // Update speed
+                    if (deltaH < 0.0f) {
+                        speed = sqrt(speed * speed - deltaH * gravity);
+                    } else {
+                        speed = max(0.0f, speed - deltaH * gravity);
+                    }
+
+                    if (speed == 0.0f) break;
+
+                    // Calculate capacity
+                    float slope = max(-deltaH, 0.0f);
+                    float capacity = max(0.0f, speed * water * slope * capacityFactor);
+
+                    if (sediment > capacity || deltaH > 0.0f) {
+                        float depositAmount = (deltaH > 0.0f) ? min(deltaH, sediment) : (sediment - capacity) * depositionSpeed;
+                        sediment -= depositAmount;
+
+                        myDelta[indexNW] += (1.0f - xOffset) * (1.0f - yOffset) * depositAmount;
+                        myDelta[indexNE] += xOffset * (1.0f - yOffset) * depositAmount;
+                        myDelta[indexSW] += (1.0f - xOffset) * yOffset * depositAmount;
+                        myDelta[indexSE] += xOffset * yOffset * depositAmount;
+                    } else {
+                        float erodeAmount = min((capacity - sediment) * erosionSpeed, -deltaH);
+                        sediment += erodeAmount;
+
+                        myDelta[indexNW] -= (1.0f - xOffset) * (1.0f - yOffset) * erodeAmount;
+                        myDelta[indexNE] -= xOffset * (1.0f - yOffset) * erodeAmount;
+                        myDelta[indexSW] -= (1.0f - xOffset) * yOffset * erodeAmount;
+                        myDelta[indexSE] -= xOffset * yOffset * erodeAmount;
+                    }
+
+                    water *= (1.0f - evaporationRate);
+                    posX = nextX;
+                    posY = nextY;
+                }
+            }
+        }
+
+        // Parallel reduction back to m_data
+        #pragma omp parallel for
+        for (int idx = 0; idx < m_size * m_size; idx++) {
+            float sum = 0.0f;
+            for (int t = 0; t < numThreads; t++) {
+                sum += localDelta[t][idx];
+            }
+            m_data[idx] += sum;
+        }
+    }
+
+    auto end = chrono::high_resolution_clock::now();
+    return chrono::duration<double, milli>(end - start).count();
 }

@@ -2,6 +2,12 @@
 #include <vector>
 #include "raylib.h"
 
+enum class ErosionMode {
+    SEQUENTIAL,
+    PARALLEL_ATOMIC,
+    PARALLEL_LOCAL_BUFFERS
+};
+
 struct BenchmarkResults {
     double timeSequential;
     double timeParallel;
@@ -16,6 +22,10 @@ struct BenchmarkResults {
     int octaves;
     float persistence;
     float lacunarity;
+
+    // Resultados de erosión
+    double timeErosion;
+    ErosionMode erosionMode;
 };
 
 class Terrain {
@@ -25,6 +35,9 @@ public:
 
     // Ejecuta ambos experimentos y devuelve los resultados de tiempo
     BenchmarkResults runBenchmark();
+
+    // Aplica erosión hidráulica y devuelve el tiempo en ms
+    double applyErosion(ErosionMode mode);
 
     // Regenera los datos con una nueva semilla
     void regenerate(unsigned int newSeed);
@@ -55,3 +68,4 @@ private:
     bool m_usingColor;      // Estado actual de la visualización
     bool m_texturesLoaded;
 };
+
