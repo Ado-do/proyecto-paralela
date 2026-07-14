@@ -37,20 +37,51 @@ void Heightmap::generateParallel() {
     }
 }
 
+void Heightmap::regenerate(unsigned int newSeed) {
+    m_seed = newSeed;
+    m_pTable = noise::generatePermutationTable(m_seed);
+}
+
+void Heightmap::setOctaves(int octaves) {
+    m_octaves = octaves;
+}
+
+void Heightmap::resetGrid() {
+    generateParallel();
+}
+
 BenchmarkResults Heightmap::runBenchmark() {
     cout << "Iniciando benchmark (Tamaño: " << m_size << "x" << m_size << ", Hilos: " << omp_get_max_threads() << ", Octavas: " << m_octaves << ")..." << endl;
 
     int numThreads = omp_get_max_threads();
 
-    auto startSeq = chrono::high_resolution_clock::now();
-    generateSequential();
-    auto endSeq = chrono::high_resolution_clock::now();
-    double tSeq = chrono::duration<double, milli>(endSeq - startSeq).count();
+    // Warmup Secuencial (2 pasadas)
+    for (int w = 0; w < 2; w++) {
+        generateSequential();
+    }
+    // Repeticiones Secuencial (5 pasadas, tomamos el promedio)
+    double sumSeq = 0.0;
+    for (int r = 0; r < 5; r++) {
+        auto startSeq = chrono::high_resolution_clock::now();
+        generateSequential();
+        auto endSeq = chrono::high_resolution_clock::now();
+        sumSeq += chrono::duration<double, milli>(endSeq - startSeq).count();
+    }
+    double tSeq = sumSeq / 5.0;
 
-    auto startPar = chrono::high_resolution_clock::now();
-    generateParallel();
-    auto endPar = chrono::high_resolution_clock::now();
-    double tPar = chrono::duration<double, milli>(endPar - startPar).count();
+    // Warmup Paralelo (2 pasadas)
+    for (int w = 0; w < 2; w++) {
+        generateParallel();
+    }
+    // Repeticiones Paralelo (5 pasadas, tomamos el promedio)
+    double sumPar = 0.0;
+    for (int r = 0; r < 5; r++) {
+        auto startPar = chrono::high_resolution_clock::now();
+        generateParallel();
+        auto endPar = chrono::high_resolution_clock::now();
+        sumPar += chrono::duration<double, milli>(endPar - startPar).count();
+    }
+    double tPar = sumPar / 5.0;
 
     double speedup = tSeq / tPar;
     double efficiency = (speedup / numThreads) * 100.0;
@@ -61,15 +92,6 @@ BenchmarkResults Heightmap::runBenchmark() {
         m_seed, terrainNoiseScale, m_octaves, terrainPersistence, terrainLacunarity,
         0.0, ErosionMode::SEQUENTIAL
     };
-}
-
-void Heightmap::regenerate(unsigned int newSeed) {
-    m_seed = newSeed;
-    m_pTable = noise::generatePermutationTable(m_seed);
-}
-
-void Heightmap::setOctaves(int octaves) {
-    m_octaves = octaves;
 }
 
 double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {

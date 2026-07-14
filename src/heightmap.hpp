@@ -41,6 +41,7 @@ public:
     double applyErosion(ErosionMode mode, ErosionProfile* profile = nullptr);
     void regenerate(unsigned int newSeed);
     void setOctaves(int octaves);
+    void resetGrid();
     
     const std::vector<float>& getData() const { return m_data; }
     int getSize() const { return m_size; }
