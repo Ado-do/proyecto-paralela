@@ -27,9 +27,13 @@ mkdir -p results
 gprof ./build/raymap_benchmark gmon.out > results/profile_report.txt
 echo "* Reporte de gprof guardado -> results/profile_report.txt"
 
-echo "* Generando gráficos de perfilamiento..."
-cd results/plot && gnuplot plot_profiling.gp && cd ../..
-echo "* Gráfico de perfilamiento guardado -> results/plot/draws/erosion_local_breakdown.pdf"
+if command -v gnuplot >/dev/null 2>&1; then
+    echo "* Generando gráficos de perfilamiento..."
+    cd results/plot && gnuplot plot_profiling.gp && cd ../..
+    echo "* Gráfico de perfilamiento guardado -> results/plot/draws/erosion_local_breakdown.pdf"
+else
+    echo "WARNING: 'gnuplot' no está instalado. Saltando la generación de gráficos de perfilamiento."
+fi
 
 # Restaurar cmake normal
 echo "* Restaurando configuración de compilación estándar (sin flags de profiling)..."
