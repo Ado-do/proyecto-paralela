@@ -12,9 +12,9 @@ if ! command -v gprof >/dev/null 2>&1; then
     exit 1
 fi
 
-# Configurar cmake con profiling habilitado
+# Configurar cmake con profiling habilitado (admite flags adicionales)
 echo "Configurando compilación en CMake con soporte para profiling (-g -pg)..."
-cmake -B build -DENABLE_PROFILING=ON -DCMAKE_BUILD_TYPE=Release
+cmake -B build -DENABLE_PROFILING=ON -DCMAKE_BUILD_TYPE=Release "$@"
 
 echo "Compilando benchmark..."
 cmake --build build --target raymap_benchmark --parallel
@@ -35,8 +35,8 @@ else
     echo "WARNING: 'gnuplot' no está instalado. Saltando la generación de gráficos de perfilamiento."
 fi
 
-# Restaurar cmake normal
+# Restaurar cmake normal (preservando flags adicionales del usuario)
 echo "* Restaurando configuración de compilación estándar (sin flags de profiling)..."
-cmake -B build -DENABLE_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release
+cmake -B build -DENABLE_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release "$@"
 
 echo "* PROFILING FINALIZADO!"

@@ -15,30 +15,35 @@ endif()
 # Librerias
 find_package(OpenMP REQUIRED)
 
-find_package(raylib QUIET)
-if (NOT raylib_FOUND)
-    include(FetchContent)
-    FetchContent_Declare(
-        raylib
-        GIT_REPOSITORY https://github.com/raysan5/raylib.git
-        GIT_TAG 6.0
-        GIT_SHALLOW 1
+# Opción para construir o no el visualizador 3D (útil para servidores sin entorno gráfico)
+option(BUILD_VISUALIZER "Construir el visualizador 3D (requiere dependencias X11/Raylib)" ON)
+
+if(BUILD_VISUALIZER)
+    find_package(raylib QUIET)
+    if (NOT raylib_FOUND)
+        include(FetchContent)
+        FetchContent_Declare(
+            raylib
+            GIT_REPOSITORY https://github.com/raysan5/raylib.git
+            GIT_TAG 6.0
+            GIT_SHALLOW 1
+        )
+        FetchContent_MakeAvailable(raylib)
+    endif()
+
+    # --- Raymap (Visualizador)
+    add_executable(${PROJECT_NAME}
+        src/main.cpp
+        src/noise.cpp
+        src/terrain.cpp
+        src/visuals.cpp
+        src/heightmap.cpp
     )
-    FetchContent_MakeAvailable(raylib)
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:-O3>)
 endif()
-
-# --- Raymap (Visualizador)
-add_executable(${PROJECT_NAME}
-    src/main.cpp
-    src/noise.cpp
-    src/terrain.cpp
-    src/visuals.cpp
-    src/heightmap.cpp
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:-O3>)
 
 # --- Benchmarks
 add_executable(raymap_benchmark
