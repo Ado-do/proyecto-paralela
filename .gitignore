@@ -3,8 +3,10 @@ build/
 docs/
 report/
 
+results-*/
 results/*.csv
 results/plot/draws/
+
 .clangd
 *.png
 gmon.out
