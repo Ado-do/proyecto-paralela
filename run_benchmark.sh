@@ -4,10 +4,12 @@
 # Asegurar que se detiene ante cualquier error en la compilación o ejecución
 set -e
 
+echo "* REALIZANDO BENCHMARK"
+
 echo "* Compilando benchmarks..."
 cmake --build build --target raymap_benchmark --parallel
 
-echo "* Ejecutando benchmarks (esto puede tomar un par de minutos)..."
+echo "* Ejecutando benchmarks..."
 mkdir -p results/plot/draws
 ./build/raymap_benchmark results/
 
@@ -16,12 +18,9 @@ if command -v gnuplot >/dev/null 2>&1; then
     cd results/plot
     gnuplot plot_benchmarks.gp
     cd ../..
-    echo "* ¡Éxito! Gráficos guardados en resultados/plot/draws/"
+    echo "* Gráficos guardados en resultados/plot/draws/"
 else
-    echo "=========================================================="
-    echo "WARNING: 'gnuplot' no está instalado en el sistema."
-    echo "Los datos CSV se guardaron en 'results/', pero no se"
-    echo "pudieron generar los gráficos en PDF."
-    echo "Puedes instalar gnuplot ejecutando: sudo apt install gnuplot"
-    echo "=========================================================="
+    echo "* Programa gnuplot no está instalado en el sistema. Saltando gráficos."
 fi
+
+echo "* BENCHMARK FINALIZADO"

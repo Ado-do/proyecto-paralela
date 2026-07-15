@@ -1,5 +1,6 @@
 #include "visuals.hpp"
-#include "config.hpp"
+#include "benchmark_config.hpp"
+#include "raymap_config.hpp"
 #include <cmath>
 
 OrbitCamera::OrbitCamera(float radius, float height, float fov) 

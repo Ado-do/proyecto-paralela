@@ -1,4 +1,5 @@
-#include "config.hpp"
+#include "benchmark_config.hpp"
+#include "raymap_config.hpp"
 #include "raylib.h"
 #include "terrain.hpp"
 #include "visuals.hpp"

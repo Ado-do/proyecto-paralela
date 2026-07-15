@@ -1,5 +1,6 @@
 #include "terrain.hpp"
-#include "config.hpp"
+#include "benchmark_config.hpp"
+#include "raymap_config.hpp"
 #include <iostream>
 
 using namespace std;
