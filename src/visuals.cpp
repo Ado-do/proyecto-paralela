@@ -1,5 +1,4 @@
 #include "visuals.hpp"
-#include "benchmark_config.hpp"
 #include "raymap_config.hpp"
 #include <cmath>
 

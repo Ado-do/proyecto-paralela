@@ -26,7 +26,7 @@ void Heightmap::generateSequential() {
 }
 
 void Heightmap::generateParallel() {
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) schedule(runtime)
     for (int y = 0; y < m_size; y++) {
         for (int x = 0; x < m_size; x++) {
             float nx = (float)x / (m_size - 1);
@@ -223,7 +223,7 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
             mt19937 prng(m_seed + threadId);
             uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
 
-            #pragma omp for
+            #pragma omp for schedule(runtime)
             for (int i = 0; i < erosionDroplets; i++) {
                 float posX = distCoord(prng);
                 float posY = distCoord(prng);
@@ -365,7 +365,7 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
             mt19937 prng(m_seed + threadId);
             uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
 
-            #pragma omp for
+            #pragma omp for schedule(runtime)
             for (int i = 0; i < erosionDroplets; i++) {
                 float posX = distCoord(prng);
                 float posY = distCoord(prng);
@@ -477,7 +477,7 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
 
         // Parallel reduction back to m_data
         auto startRed = chrono::high_resolution_clock::now();
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(runtime)
         for (int idx = 0; idx < m_size * m_size; idx++) {
             float sum = 0.0f;
             for (int t = 0; t < numThreads; t++) {

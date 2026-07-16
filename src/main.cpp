@@ -114,11 +114,10 @@ int main() {
 
             // Interfaz
             DrawMetricsUI(results);
-            DrawText("ESPACIO: Rand | H/L: Semilla (-/+) | J/K: Octavas (1-8) | X: Hilos | C: Color", 10,
-                    screenHeight - 55, 18, DARKGRAY);
-            DrawText("E: Aplicar Erosión | V: Cambiar Modo de Erosión", 10,
-                    screenHeight - 30, 18, DARKGRAY);
+            DrawText("ESPACIO: Rand | H/L: Semilla (-/+) | J/K: Octavas (1-8) | X: Hilos | C: Color", 10, GetScreenHeight() - 55, 18, DARKGRAY);
+            DrawText("E: Aplicar Erosión | V: Cambiar Modo de Erosión", 10, GetScreenHeight() - 30, 18, DARKGRAY);
 
+            DrawFPS(GetScreenWidth() - 80, 10);
         EndDrawing();
     }
 

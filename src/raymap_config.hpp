@@ -14,15 +14,15 @@ inline const Color colorRock = (Color){100, 90, 80, 255};
 inline const Color colorSnow = (Color){250, 250, 255, 255};
 
 // Dimensiones del Mesh
-inline const float meshWidth = 120.0f;
-inline const float meshLength = 120.0f;
-inline const float meshHeight = 30.0f;
+inline const float meshWidth = 180.0f;
+inline const float meshLength = meshWidth;
+inline const float meshHeight = 60.0f;
 
 // Cámara
 inline const float cameraOrbitSpeed = 0.5f;
 inline const float cameraRadius = 120.0f;
-inline const float cameraHeight = 60.0f;
-inline const float cameraFOV = 45.0f;
+inline const float cameraHeight = 90.0f;
+inline const float cameraFOV = 60.0f;
 
 // UI
 inline const Color uiPanelColor = (Color){135, 206, 235, 128};

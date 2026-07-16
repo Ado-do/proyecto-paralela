@@ -1,11 +1,7 @@
 #pragma once
 #include <vector>
 
-enum class ErosionMode {
-    SEQUENTIAL,
-    PARALLEL_ATOMIC,
-    PARALLEL_LOCAL_BUFFERS
-};
+enum class ErosionMode { SEQUENTIAL, PARALLEL_ATOMIC, PARALLEL_LOCAL_BUFFERS };
 
 // Estructura para registrar los tiempos de las sub-etapas de erosión
 struct ErosionProfile {
@@ -22,7 +18,7 @@ struct BenchmarkResults {
     double efficiency;
     double cost;
     int numThreads;
-    
+
     unsigned int seed;
     float scale;
     int octaves;
@@ -36,14 +32,14 @@ struct BenchmarkResults {
 class Heightmap {
 public:
     Heightmap(int size, unsigned int seed, int octaves = 8);
-    
+
     BenchmarkResults runBenchmark();
-    double applyErosion(ErosionMode mode, ErosionProfile* profile = nullptr);
+    double applyErosion(ErosionMode mode, ErosionProfile *profile = nullptr);
     void regenerate(unsigned int newSeed);
     void setOctaves(int octaves);
     void resetGrid();
-    
-    const std::vector<float>& getData() const { return m_data; }
+
+    const std::vector<float> &getData() const { return m_data; }
     int getSize() const { return m_size; }
     unsigned int getSeed() const { return m_seed; }
     int getOctaves() const { return m_octaves; }
