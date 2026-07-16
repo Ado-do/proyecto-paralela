@@ -8,7 +8,7 @@ public:
     ~Terrain();
 
     // Wrappers para interactuar con el motor de cálculo desacoplado
-    BenchmarkResults runBenchmark() { return m_heightmap.runBenchmark(); }
+    BenchmarkResults runBenchmark(bool quick = false) { return m_heightmap.runBenchmark(quick); }
     double applyErosion(ErosionMode mode) { return m_heightmap.applyErosion(mode); }
     void regenerate(unsigned int newSeed) { m_heightmap.regenerate(newSeed); }
     void setOctaves(int octaves) { m_heightmap.setOctaves(octaves); }
@@ -17,6 +17,7 @@ public:
     // Métodos específicos de Raylib para renderizado 3D
     Model createModel();
     void toggleTexture(Model& model);
+    bool isUsingColor() const { return m_usingColor; }
 
 private:
     Image createHeightImage();

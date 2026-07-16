@@ -15,17 +15,18 @@ int main() {
     int threadIndex = 2;
     omp_set_num_threads(threadOptions[threadIndex]);
 
-    // Crear objeto terreno y correr benchmark inicial
+    // Crear objeto terreno y correr benchmark inicial en modo rápido
     unsigned int currentSeed = 0;
     int currentOctaves = 8;
     Terrain terrain(mapSize, currentSeed, currentOctaves);
-    BenchmarkResults results = terrain.runBenchmark();
+    BenchmarkResults results = terrain.runBenchmark(true);
 
     // Cargar modelo y cámara
     Model terrainModel = terrain.createModel();
     OrbitCamera camera(cameraRadius, cameraHeight, cameraFOV);
 
     ErosionMode currentErosionMode = ErosionMode::SEQUENTIAL;
+    bool drawWireframe = false;
 
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
@@ -33,6 +34,16 @@ int main() {
         // Cambiar textura (C)
         if (IsKeyPressed(KEY_C)) {
             terrain.toggleTexture(terrainModel);
+        }
+
+        // Alternar malla de alambre (Z)
+        if (IsKeyPressed(KEY_Z)) {
+            drawWireframe = !drawWireframe;
+        }
+
+        // Alternar rotación automática de la cámara (P)
+        if (IsKeyPressed(KEY_P)) {
+            camera.toggleAutoRotate();
         }
 
         // Cambiar modo de erosión (V)
@@ -95,7 +106,7 @@ int main() {
         }
 
         if (needsUpdate) {
-            results = terrain.runBenchmark();
+            results = terrain.runBenchmark(true);
             results.erosionMode = currentErosionMode;
             UnloadModel(terrainModel);
             terrainModel = terrain.createModel();
@@ -105,17 +116,26 @@ int main() {
 
         // Render
         BeginDrawing();
-            ClearBackground(RAYWHITE);
+            ClearBackground((Color){ 18, 18, 24, 255 }); // Fondo oscuro técnico
 
             camera.beginMode();
+                // Dibujar terreno sólido
                 DrawModel(terrainModel, (Vector3){-meshWidth / 2.0f, 0, -meshLength / 2.0f}, 1.0f, WHITE);
+
+                // Superponer malla de alambre si está activa (con pequeño Y offset para evitar Z-fighting)
+                if (drawWireframe) {
+                    DrawModelWires(terrainModel, (Vector3){-meshWidth / 2.0f, 0.1f, -meshLength / 2.0f}, 1.0f, (Color){0, 0, 0, 90});
+                }
+
+                // Dibujar plano de agua semi-transparente
+                Vector3 waterPos = { 0.0f, (heightShallowWater + 1.0f) * 0.5f * meshHeight, 0.0f };
+                DrawCube(waterPos, meshWidth, 0.1f, meshLength, (Color){40, 90, 220, 140});
+
                 DrawGrid(20, 10.0f);
             camera.endMode();
 
             // Interfaz
-            DrawMetricsUI(results);
-            DrawText("ESPACIO: Rand | H/L: Semilla (-/+) | J/K: Octavas (1-8) | X: Hilos | C: Color", 10, GetScreenHeight() - 55, 18, DARKGRAY);
-            DrawText("E: Aplicar Erosión | V: Cambiar Modo de Erosión", 10, GetScreenHeight() - 30, 18, DARKGRAY);
+            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate());
 
             DrawFPS(GetScreenWidth() - 80, 10);
         EndDrawing();

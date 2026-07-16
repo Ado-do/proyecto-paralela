@@ -33,7 +33,7 @@ class Heightmap {
 public:
     Heightmap(int size, unsigned int seed, int octaves = 8);
 
-    BenchmarkResults runBenchmark();
+    BenchmarkResults runBenchmark(bool quick = false);
     double applyErosion(ErosionMode mode, ErosionProfile *profile = nullptr);
     void regenerate(unsigned int newSeed);
     void setOctaves(int octaves);

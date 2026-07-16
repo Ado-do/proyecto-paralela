@@ -8,12 +8,15 @@ public:
     void update(float dt);
     void beginMode();
     void endMode();
+    void toggleAutoRotate() { m_autoRotate = !m_autoRotate; }
+    bool isAutoRotate() const { return m_autoRotate; }
 
 private:
     Camera3D m_camera;
     float m_angle;
     float m_radius;
     float m_height;
+    bool m_autoRotate;
 };
 
-void DrawMetricsUI(const BenchmarkResults& results);
+void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWireframe, bool autoRotate);

@@ -25,8 +25,8 @@ inline const float cameraHeight = 90.0f;
 inline const float cameraFOV = 60.0f;
 
 // UI
-inline const Color uiPanelColor = (Color){135, 206, 235, 128};
-inline const Color uiBorderColor = BLUE;
+inline const Color uiPanelColor = (Color){20, 24, 33, 220};   // Panel oscuro moderno
+inline const Color uiBorderColor = (Color){70, 80, 105, 255};  // Borde azul-grisáceo sutil
 inline const int uiIndicatorFontSize = 20;
 inline const int uiIndicatorMarginBottom = 40;
 inline const int uiIndicatorMarginLeft = 20;
