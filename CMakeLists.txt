@@ -42,7 +42,7 @@ if(BUILD_VISUALIZER)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
     target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
-    target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:-O3>)
+    target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:-O3 -march=native>)
 endif()
 
 # --- Benchmarks
@@ -52,7 +52,7 @@ add_executable(raymap_benchmark
     src/heightmap.cpp
 )
 target_link_libraries(raymap_benchmark PRIVATE OpenMP::OpenMP_CXX)
-target_compile_options(raymap_benchmark PRIVATE $<$<CONFIG:Release>:-O3>)
+target_compile_options(raymap_benchmark PRIVATE $<$<CONFIG:Release>:-O3 -march=native>)
 
 # --- Testing
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)

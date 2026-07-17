@@ -11,13 +11,16 @@ using namespace std;
 namespace noise {
 
 float perlin2D(float x, float y, const vector<int> &p) {
+    float floorX = floor(x);
+    float floorY = floor(y);
+
     // Determina la celda en la grilla (0-255) usando AND binario como módulo 256
-    int X = static_cast<int>(floor(x)) & 255;
-    int Y = static_cast<int>(floor(y)) & 255;
+    int X = static_cast<int>(floorX) & 255;
+    int Y = static_cast<int>(floorY) & 255;
 
     // Calcula la posición relativa (0.0 a 1.0) dentro de la celda unitaria
-    x -= floor(x);
-    y -= floor(y);
+    x -= floorX;
+    y -= floorY;
 
     // Aplica la curva de suavizado (fade) para asegurar continuidad C2 en los bordes
     float u = fade(x);
@@ -41,15 +44,17 @@ float fbm2D(float x, float y, int octaves, float persistence, float lacunarity, 
     float total = 0.0f;
     float amplitude = 1.0f;
     float frequency = 1.0f;
-    float maxValue = 0.0f;
 
     // Acumulación fractal: suma octavas con frecuencia creciente y amplitud decreciente
     for (int i = 0; i < octaves; ++i) {
         total += perlin2D(x * frequency, y * frequency, p) * amplitude;
-        maxValue += amplitude; // Suma de amplitudes para normalización posterior
         amplitude *= persistence; // Controla la rugosidad (comúnmente 0.5)
         frequency *= lacunarity;  // Controla el detalle (comúnmente 2.0)
     }
+
+    // Suma de progresión geométrica para normalizar
+    float maxValue = (persistence == 1.0f) ? static_cast<float>(octaves) 
+                                            : (1.0f - pow(persistence, octaves)) / (1.0f - persistence);
 
     // Retorna el valor normalizado al rango [-1, 1]
     return total / maxValue;

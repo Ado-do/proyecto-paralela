@@ -23,6 +23,7 @@ Image Terrain::createHeightImage() {
     const auto& data = m_heightmap.getData();
     Image image = GenImageColor(size, size, BLACK);
     Color* pixels = (Color*)image.data;
+    #pragma omp parallel for
     for (int i = 0; i < size * size; i++) {
         unsigned char val = (unsigned char)((data[i] + 1.0f) * 0.5f * 255.0f);
         pixels[i] = (Color){ val, val, val, 255 };

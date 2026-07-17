@@ -369,7 +369,7 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
     } 
     else if (mode == ErosionMode::PARALLEL_LOCAL_BUFFERS) {
         auto startAlloc = chrono::high_resolution_clock::now();
-        vector<vector<float>> localDelta(numThreads, vector<float>(m_size * m_size, 0.0f));
+        vector<float> localDelta(numThreads * m_size * m_size, 0.0f);
         auto endAlloc = chrono::high_resolution_clock::now();
         tAlloc = chrono::duration<double, milli>(endAlloc - startAlloc).count();
 
@@ -377,7 +377,7 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
         #pragma omp parallel
         {
             int threadId = omp_get_thread_num();
-            auto& myDelta = localDelta[threadId];
+            float* myDelta = &localDelta[threadId * m_size * m_size];
             mt19937 prng(m_seed + threadId);
             uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
 
@@ -497,7 +497,7 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
         for (int idx = 0; idx < m_size * m_size; idx++) {
             float sum = 0.0f;
             for (int t = 0; t < numThreads; t++) {
-                sum += localDelta[t][idx];
+                sum += localDelta[t * m_size * m_size + idx];
             }
             m_data[idx] += sum;
         }

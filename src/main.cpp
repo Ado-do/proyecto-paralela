@@ -3,6 +3,8 @@
 #include "raylib.h"
 #include "terrain.hpp"
 #include "visuals.hpp"
+
+#include <algorithm>
 #include <omp.h>
 
 int main() {
@@ -10,9 +12,19 @@ int main() {
     InitWindow(screenWidth, screenHeight, "raymap");
     SetTargetFPS(60);
 
-    // Configuración de hilos
-    int threadOptions[] = {4, 8, 12};
-    int threadIndex = 2;
+    // Configuración de hilos dinámica
+    int maxThreads = omp_get_max_threads();
+    std::vector<int> threadOptions;
+    if (maxThreads <= 4) {
+        threadOptions = {1, 2, maxThreads};
+    } else if (maxThreads <= 8) {
+        threadOptions = {2, 4, maxThreads};
+    } else {
+        threadOptions = {4, maxThreads / 2, maxThreads};
+    }
+    // Eliminar duplicados si los hay
+    threadOptions.erase(std::unique(threadOptions.begin(), threadOptions.end()), threadOptions.end());
+    int threadIndex = threadOptions.size() - 1;
     omp_set_num_threads(threadOptions[threadIndex]);
 
     // Crear objeto terreno y correr benchmark inicial en modo rápido
@@ -63,7 +75,7 @@ int main() {
 
         // Rotar hilos (X)
         if (IsKeyPressed(KEY_X)) {
-            threadIndex = (threadIndex + 1) % 3;
+            threadIndex = (threadIndex + 1) % threadOptions.size();
             omp_set_num_threads(threadOptions[threadIndex]);
             needsUpdate = true;
         }
