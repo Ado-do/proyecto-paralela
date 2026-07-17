@@ -40,6 +40,7 @@ int main() {
     ErosionMode currentErosionMode = ErosionMode::SEQUENTIAL;
     bool drawWireframe = false;
     bool showControls = true;
+    bool is2DMode = false;
 
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
@@ -47,6 +48,11 @@ int main() {
         // Cambiar textura (C)
         if (IsKeyPressed(KEY_C)) {
             terrain.toggleTexture(terrainModel);
+        }
+
+        // Alternar entre vista 3D y vista 2D del ruido (M)
+        if (IsKeyPressed(KEY_M)) {
+            is2DMode = !is2DMode;
         }
 
         // Alternar malla de alambre (Z)
@@ -130,32 +136,58 @@ int main() {
             terrainModel = terrain.createModel();
         }
 
-        camera.update(GetFrameTime());
+        if (!is2DMode) {
+            camera.update(GetFrameTime());
+        }
 
         // Render
         BeginDrawing();
             ClearBackground((Color){ 18, 18, 24, 255 }); // Fondo oscuro técnico
 
-            camera.beginMode();
-                // Dibujar terreno sólido
-                DrawModel(terrainModel, (Vector3){-meshWidth / 2.0f, 0, -meshLength / 2.0f}, 1.0f, WHITE);
+            if (!is2DMode) {
+                camera.beginMode();
+                    // Dibujar terreno sólido
+                    DrawModel(terrainModel, (Vector3){-meshWidth / 2.0f, 0, -meshLength / 2.0f}, 1.0f, WHITE);
 
-                // Superponer malla de alambre si está activa (con pequeño Y offset para evitar Z-fighting)
-                if (drawWireframe) {
-                    DrawModelWires(terrainModel, (Vector3){-meshWidth / 2.0f, 0.1f, -meshLength / 2.0f}, 1.0f, (Color){0, 0, 0, 90});
-                }
+                    // Superponer malla de alambre si está activa (con pequeño Y offset para evitar Z-fighting)
+                    if (drawWireframe) {
+                        DrawModelWires(terrainModel, (Vector3){-meshWidth / 2.0f, 0.1f, -meshLength / 2.0f}, 1.0f, (Color){0, 0, 0, 90});
+                    }
 
-                // Dibujar plano de agua semi-transparente solo en modo color/realista
-                if (terrain.isUsingColor()) {
-                    Vector3 waterPos = { 0.0f, (heightShallowWater + 1.0f) * 0.5f * meshHeight, 0.0f };
-                    DrawCube(waterPos, meshWidth, 0.1f, meshLength, (Color){40, 90, 220, 140});
-                }
+                    // Dibujar plano de agua semi-transparente solo en modo color/realista
+                    if (terrain.isUsingColor()) {
+                        Vector3 waterPos = { 0.0f, (heightShallowWater + 1.0f) * 0.5f * meshHeight, 0.0f };
+                        DrawCube(waterPos, meshWidth, 0.1f, meshLength, (Color){40, 90, 220, 140});
+                    }
 
-                DrawGrid(20, 10.0f);
-            camera.endMode();
+                    DrawGrid(20, 10.0f);
+                camera.endMode();
+            } else {
+                // Dibujar vista 2D del mapa de alturas
+                int screenW = GetScreenWidth();
+                int screenH = GetScreenHeight();
+
+                // Mostrar ambos mapas side-by-side
+                int texWidth = 512;
+                int texHeight = 512;
+                int spacing = 40;
+                int totalWidth = texWidth * 2 + spacing;
+                int startX = (screenW - totalWidth) / 2;
+                int startY = (screenH - texHeight) / 2;
+
+                // 1. Escala de grises
+                DrawTexture(terrain.getTexDebug(), startX, startY, WHITE);
+                DrawRectangleLines(startX - 2, startY - 2, texWidth + 4, texHeight + 4, uiBorderColor);
+                DrawText("Ruido / Alturas (Escala de Grises)", startX, startY - 25, 16, SKYBLUE);
+
+                // 2. Colorizado
+                DrawTexture(terrain.getTexColor(), startX + texWidth + spacing, startY, WHITE);
+                DrawRectangleLines(startX + texWidth + spacing - 2, startY - 2, texWidth + 4, texHeight + 4, uiBorderColor);
+                DrawText("Biomas / Terreno (Colorizado)", startX + texWidth + spacing, startY - 25, 16, SKYBLUE);
+            }
 
             // Interfaz
-            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls);
+            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls, is2DMode);
 
             DrawFPS(GetScreenWidth() - 80, 10);
         EndDrawing();

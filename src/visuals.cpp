@@ -48,7 +48,7 @@ void OrbitCamera::endMode() {
     EndMode3D();
 }
 
-void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWireframe, bool autoRotate, bool showControls) {
+void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWireframe, bool autoRotate, bool showControls, bool is2DMode) {
     int screenW = GetScreenWidth();
     int screenH = GetScreenHeight();
 
@@ -89,9 +89,10 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
     DrawText(TextFormat("Lacunaridad:  %.2f", results.lacunarity), rightPanelX + 25, y, 14, LIGHTGRAY); y += 35;
 
     DrawText("Estado Visual", rightPanelX + 25, y, 16, SKYBLUE); y += 30;
+    DrawText(TextFormat("Vista:   %s", is2DMode ? "2D Ruido" : "3D Terreno"), rightPanelX + 25, y, 13, SKYBLUE); y += 20;
     DrawText(TextFormat("Textura: %s", usingColor ? "Realista (Color)" : "Depuración (Grises)"), rightPanelX + 25, y, 13, LIGHTGRAY); y += 20;
-    DrawText(TextFormat("Malla:   %s", drawWireframe ? "Sólido + Alambre" : "Sólido"), rightPanelX + 25, y, 13, LIGHTGRAY); y += 20;
-    DrawText(TextFormat("Cámara:  %s", autoRotate ? "Rotación Activa" : "Cámara Manual"), rightPanelX + 25, y, 13, LIGHTGRAY);
+    DrawText(TextFormat("Malla (3D): %s", drawWireframe ? "Sólido + Alambre" : "Sólido"), rightPanelX + 25, y, 13, is2DMode ? DARKGRAY : LIGHTGRAY); y += 20;
+    DrawText(TextFormat("Cámara (3D): %s", autoRotate ? "Rotación Activa" : "Cámara Manual"), rightPanelX + 25, y, 13, is2DMode ? DARKGRAY : LIGHTGRAY);
 
     // 3. PANEL INFERIOR: Controles agrupados
     if (showControls) {
@@ -117,17 +118,18 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
         // Columna 3: Visualización
         colX += colWidth;
         DrawText("[VISUALIZACIÓN]", colX, colY, 13, SKYBLUE);
-        DrawText("C: Alternar textura (Color/Grises)", colX, colY + 20, 12, LIGHTGRAY);
-        DrawText("Z: Alternar malla de alambre", colX, colY + 38, 12, LIGHTGRAY);
-        DrawText("P: Pausar/Reanudar cámara", colX, colY + 56, 12, LIGHTGRAY);
-        DrawText("TAB: Ocultar panel ayuda", colX, colY + 74, 12, SKYBLUE);
+        DrawText("M: Alternar Vista 2D/3D", colX, colY + 20, 12, SKYBLUE);
+        DrawText("C: Alternar textura (3D)", colX, colY + 38, 12, LIGHTGRAY);
+        DrawText("Z: Alternar malla (3D)", colX, colY + 56, 12, LIGHTGRAY);
+        DrawText("P: Pausar/Reanudar cámara (3D)", colX, colY + 74, 12, LIGHTGRAY);
 
         // Columna 4: Navegación e Hilos
         colX += colWidth;
         DrawText("[NAVEGACIÓN E HILOS]", colX, colY, 13, SKYBLUE);
-        DrawText("Clic-Der + Arrastrar: Orbitar", colX, colY + 20, 12, LIGHTGRAY);
-        DrawText("Rueda de Mouse: Zoom cámara", colX, colY + 38, 12, LIGHTGRAY);
+        DrawText("Clic-Der + Arrastrar: Orbitar (3D)", colX, colY + 20, 12, LIGHTGRAY);
+        DrawText("Rueda de Mouse: Zoom (3D)", colX, colY + 38, 12, LIGHTGRAY);
         DrawText("X: Alternar cantidad de hilos", colX, colY + 56, 12, LIGHTGRAY);
+        DrawText("TAB: Ocultar panel ayuda", colX, colY + 74, 12, SKYBLUE);
     } else {
         // Pequeño indicador para volver a abrir el panel
         DrawRectangleRounded((Rectangle){ 10, (float)(screenH - 40), 180, 30 }, 0.15f, 4, uiPanelColor);

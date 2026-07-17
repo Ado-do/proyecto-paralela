@@ -19,6 +19,10 @@ public:
     void toggleTexture(Model& model);
     bool isUsingColor() const { return m_usingColor; }
 
+    // Getters para texturas de depuración y color
+    Texture2D getTexDebug() const { return m_texDebug; }
+    Texture2D getTexColor() const { return m_texColor; }
+
 private:
     Image createHeightImage();
     Image createColorImage();
