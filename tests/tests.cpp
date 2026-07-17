@@ -59,3 +59,30 @@ TEST_CASE("Erosion stability and execution") {
         CHECK(time >= 0.0);
     }
 }
+
+TEST_CASE("Erosion local buffers artifacts and bounds verification") {
+    // Inicializar un mapa de altura de 128x128 con una semilla conocida
+    Heightmap heightmap(128, 42, 4);
+    heightmap.resetGrid();
+
+    // Aplicar erosión paralela en modo local
+
+    heightmap.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
+
+    // Verificar que los valores resultantes no tengan artefactos extremos
+    const auto& data = heightmap.getData();
+    float maxVal = -1e9f;
+    float minVal = 1e9f;
+    for (float val : data) {
+        if (val > maxVal) maxVal = val;
+        if (val < minVal) minVal = val;
+    }
+
+    // Esperamos que la erosión se auto-limite y los valores no excedan límites razonables.
+    // Sin la solución, el modo local produce pozos/picos que exceden con creces el rango [-3.0f, 3.0f].
+    CHECK(maxVal < 3.0f);
+    CHECK(minVal > -3.0f);
+}
+
+
+

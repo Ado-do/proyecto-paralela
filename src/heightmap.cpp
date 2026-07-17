@@ -405,10 +405,10 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
                     int indexSW = (ipy + 1) * m_size + ipx;
                     int indexSE = indexSW + 1;
 
-                    float hNW = m_data[indexNW];
-                    float hNE = m_data[indexNE];
-                    float hSW = m_data[indexSW];
-                    float hSE = m_data[indexSE];
+                    float hNW = m_data[indexNW] + myDelta[indexNW];
+                    float hNE = m_data[indexNE] + myDelta[indexNE];
+                    float hSW = m_data[indexSW] + myDelta[indexSW];
+                    float hSE = m_data[indexSE] + myDelta[indexSE];
 
                     // Calculate gradient
                     float gradX = (hNE - hNW) * (1.0f - yOffset) + (hSE - hSW) * yOffset;
@@ -444,10 +444,11 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
                     int nindexSW = (nipy + 1) * m_size + nipx;
                     int nindexSE = nindexSW + 1;
 
-                    float hNew = m_data[nindexNW] * (1.0f - nxOffset) * (1.0f - nyOffset) +
-                                 m_data[nindexNE] * nxOffset * (1.0f - nyOffset) +
-                                 m_data[nindexSW] * (1.0f - nxOffset) * nyOffset +
-                                 m_data[nindexSE] * nxOffset * nyOffset;
+                    float hNew = (m_data[nindexNW] + myDelta[nindexNW]) * (1.0f - nxOffset) * (1.0f - nyOffset) +
+                                 (m_data[nindexNE] + myDelta[nindexNE]) * nxOffset * (1.0f - nyOffset) +
+                                 (m_data[nindexSW] + myDelta[nindexSW]) * (1.0f - nxOffset) * nyOffset +
+                                 (m_data[nindexSE] + myDelta[nindexSE]) * nxOffset * nyOffset;
+
 
                     float deltaH = hNew - hOld;
 
