@@ -3,7 +3,7 @@
 Introducción a la Computación Paralela 2026-1 \
 Alonso Bustos
 
-![demo.gif](https://i.imgur.com/8cA5GYm.gif)
+<img width="600" height="338" alt="demo" src="https://github.com/user-attachments/assets/bcfbbf07-3d3c-4527-9760-352619709cd3" />
 
 ## Requerimientos
 
