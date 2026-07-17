@@ -14,6 +14,6 @@ set ylabel "Tiempo de Ejecución (ms)"
 #set logscale y
 set grid
 set key left top
-plot '../benchmark_erosion_4096.csv' using 0:8:xtic(1) with linespoints lw 2 title "Asignación de Memoria (Alloc)", \
-     '../benchmark_erosion_4096.csv' using 0:9:xtic(1) with linespoints lw 2 title "Simulación de Gotas (Sim)", \
-     '../benchmark_erosion_4096.csv' using 0:10:xtic(1) with linespoints lw 2 title "Reducción de Buffers (Reduc)"
+plot "< grep ',dynamic,' ../benchmark_erosion_4096.csv" using 1:9 with linespoints lw 2 title "Asignación de Memoria (Alloc)", \
+     "< grep ',dynamic,' ../benchmark_erosion_4096.csv" using 1:10 with linespoints lw 2 title "Simulación de Gotas (Sim)", \
+     "< grep ',dynamic,' ../benchmark_erosion_4096.csv" using 1:11 with linespoints lw 2 title "Reducción de Buffers (Reduc)"

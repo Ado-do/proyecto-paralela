@@ -2,19 +2,19 @@ Flat profile:
 
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
- time   seconds   seconds    calls  ms/call  ms/call  name    
- 72.32     61.98    61.98 566912948     0.00     0.00  noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&)
- 12.47     72.67    10.69 608893390     0.00     0.00  noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&)
-  5.52     77.40     4.73       75    63.07    63.14  Heightmap::applyErosion(ErosionMode, ErosionProfile*)
-  3.65     80.53     3.13                             Heightmap::setOctaves(int)
-  3.47     83.50     2.97                             _init
-  1.93     85.15     1.65       25    66.00   839.25  void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&)
-  0.63     85.69     0.54      100     5.40   538.83  Heightmap::runBenchmark()
-  0.01     85.70     0.01     7225     0.00     0.00  std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand()
-  0.00     85.70     0.00       25     0.00   839.25  noise::generatePermutationTable(unsigned int)
-  0.00     85.70     0.00       25     0.00   839.25  Heightmap::Heightmap(int, unsigned int, int)
-  0.00     85.70     0.00       11     0.00     0.00  frame_dummy
-  0.00     85.70     0.00        4     0.00     0.00  void std::vector<int, std::allocator<int> >::_M_realloc_append<int const&>(int const&)
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 56.21    569.28   569.28 194480388     0.00     0.00  noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&)
+ 14.68    717.91   148.63     1050     0.14     0.14  Heightmap::applyErosion(ErosionMode, ErosionProfile*)
+ 13.12    850.79   132.88 3654528004     0.00     0.00  noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&)
+ 12.10    973.28   122.49       50     2.45    10.48  void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&)
+  3.72   1010.93    37.65                             _init
+  0.17   1012.69     1.76       50     0.04     6.05  Heightmap::runBenchmark(bool)
+  0.00   1012.70     0.01    62750     0.00     0.00  std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand()
+  0.00   1012.70     0.00     1050     0.00     0.00  Heightmap::resetGrid()
+  0.00   1012.70     0.00       50     0.00    10.48  noise::generatePermutationTable(unsigned int)
+  0.00   1012.70     0.00       50     0.00    10.48  Heightmap::Heightmap(int, unsigned int, int)
+  0.00   1012.70     0.00        4     0.00     0.00  void std::vector<int, std::allocator<int> >::_M_realloc_append<int const&>(int const&)
+  0.00   1012.70     0.00        1     0.00     0.00  frame_dummy
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -52,60 +52,61 @@ notice and this notice are preserved.
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 4 byte(s) for 0.01% of 85.70 seconds
+granularity: each sample hit covers 4 byte(s) for 0.00% of 1012.70 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]     92.9    0.00   79.60                 main [1]
-                0.54   53.34     100/100         Heightmap::runBenchmark() [4]
-                0.00   20.98      25/25          Heightmap::Heightmap(int, unsigned int, int) [6]
-                4.73    0.01      75/75          Heightmap::applyErosion(ErosionMode, ErosionProfile*) [8]
-                0.00    0.00      11/11          frame_dummy [12]
+[1]     96.3    0.00  975.05                 main [1]
+                0.00  524.09      50/50          Heightmap::Heightmap(int, unsigned int, int) [5]
+                1.76  300.56      50/50          Heightmap::runBenchmark(bool) [7]
+              148.63    0.01    1050/1050        Heightmap::applyErosion(ErosionMode, ErosionProfile*) [8]
+                0.00    0.00    1050/1050        Heightmap::resetGrid() [17]
                 0.00    0.00       4/4           void std::vector<int, std::allocator<int> >::_M_realloc_append<int const&>(int const&) [18]
+                0.00    0.00       1/1           frame_dummy [11]
 -----------------------------------------------
-                2.84   16.48 161937870/608893390     void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [7]
-                7.85   45.50 446955520/608893390     Heightmap::runBenchmark() [4]
-[2]     84.8   10.69   61.98 608893390         noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
-               61.98    0.00 566912948/566912948     noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&) [3]
+               56.88  243.68 1564344320/3654528004     Heightmap::runBenchmark(bool) [7]
+               76.00  325.60 2090183684/3654528004     void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [6]
+[2]     69.3  132.88  569.28 3654528004         noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
+              569.28    0.00 194480388/194480388     noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&) [3]
 -----------------------------------------------
-               61.98    0.00 566912948/566912948     noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
-[3]     72.3   61.98    0.00 566912948         noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&) [3]
+              569.28    0.00 194480388/194480388     noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
+[3]     56.2  569.28    0.00 194480388         noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&) [3]
 -----------------------------------------------
-                0.54   53.34     100/100         main [1]
-[4]     62.9    0.54   53.34     100         Heightmap::runBenchmark() [4]
-                7.85   45.50 446955520/608893390     noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
+                0.00  524.09      50/50          Heightmap::Heightmap(int, unsigned int, int) [5]
+[4]     51.8    0.00  524.09      50         noise::generatePermutationTable(unsigned int) [4]
+              122.49  401.60      50/50          void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [6]
 -----------------------------------------------
-                0.00   20.98      25/25          Heightmap::Heightmap(int, unsigned int, int) [6]
-[5]     24.5    0.00   20.98      25         noise::generatePermutationTable(unsigned int) [5]
-                1.65   19.33      25/25          void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [7]
+                0.00  524.09      50/50          main [1]
+[5]     51.8    0.00  524.09      50         Heightmap::Heightmap(int, unsigned int, int) [5]
+                0.00  524.09      50/50          noise::generatePermutationTable(unsigned int) [4]
 -----------------------------------------------
-                0.00   20.98      25/25          main [1]
-[6]     24.5    0.00   20.98      25         Heightmap::Heightmap(int, unsigned int, int) [6]
-                0.00   20.98      25/25          noise::generatePermutationTable(unsigned int) [5]
+              122.49  401.60      50/50          noise::generatePermutationTable(unsigned int) [4]
+[6]     51.8  122.49  401.60      50         void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [6]
+               76.00  325.60 2090183684/3654528004     noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
+                0.00    0.00    6400/62750       std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [10]
 -----------------------------------------------
-                1.65   19.33      25/25          noise::generatePermutationTable(unsigned int) [5]
-[7]     24.5    1.65   19.33      25         void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [7]
-                2.84   16.48 161937870/608893390     noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
-                0.00    0.00    3200/7225        std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [11]
+                1.76  300.56      50/50          main [1]
+[7]     29.9    1.76  300.56      50         Heightmap::runBenchmark(bool) [7]
+               56.88  243.68 1564344320/3654528004     noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [2]
 -----------------------------------------------
-                4.73    0.01      75/75          main [1]
-[8]      5.5    4.73    0.01      75         Heightmap::applyErosion(ErosionMode, ErosionProfile*) [8]
-                0.01    0.00    4025/7225        std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [11]
------------------------------------------------
-                                                 <spontaneous>
-[9]      3.7    3.13    0.00                 Heightmap::setOctaves(int) [9]
+              148.63    0.01    1050/1050        main [1]
+[8]     14.7  148.63    0.01    1050         Heightmap::applyErosion(ErosionMode, ErosionProfile*) [8]
+                0.01    0.00   56350/62750       std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [10]
 -----------------------------------------------
                                                  <spontaneous>
-[10]     3.5    2.97    0.00                 _init [10]
+[9]      3.7   37.65    0.00                 _init [9]
 -----------------------------------------------
-                                  25             std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [11]
-                0.00    0.00    3200/7225        void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [7]
-                0.01    0.00    4025/7225        Heightmap::applyErosion(ErosionMode, ErosionProfile*) [8]
-[11]     0.0    0.01    0.00    7225+25      std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [11]
-                                  25             std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [11]
+                                  50             std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [10]
+                0.00    0.00    6400/62750       void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&) [6]
+                0.01    0.00   56350/62750       Heightmap::applyErosion(ErosionMode, ErosionProfile*) [8]
+[10]     0.0    0.01    0.00   62750+50      std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [10]
+                                  50             std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [10]
 -----------------------------------------------
-                0.00    0.00      11/11          main [1]
-[12]     0.0    0.00    0.00      11         frame_dummy [12]
+                0.00    0.00       1/1           main [1]
+[11]     0.0    0.00    0.00       1         frame_dummy [11]
+-----------------------------------------------
+                0.00    0.00    1050/1050        main [1]
+[17]     0.0    0.00    0.00    1050         Heightmap::resetGrid() [17]
 -----------------------------------------------
                 0.00    0.00       4/4           main [1]
 [18]     0.0    0.00    0.00       4         void std::vector<int, std::allocator<int> >::_M_realloc_append<int const&>(int const&) [18]
@@ -201,7 +202,7 @@ notice and this notice are preserved.
 
 Index by function name
 
-   [5] noise::generatePermutationTable(unsigned int) [8] Heightmap::applyErosion(ErosionMode, ErosionProfile*) [18] void std::vector<int, std::allocator<int> >::_M_realloc_append<int const&>(int const&)
-   [2] noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [4] Heightmap::runBenchmark() [7] void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&)
-   [3] noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&) [6] Heightmap::Heightmap(int, unsigned int, int) [10] _init
-   [9] Heightmap::setOctaves(int) [11] std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [12] frame_dummy
+   [4] noise::generatePermutationTable(unsigned int) [7] Heightmap::runBenchmark(bool) [18] void std::vector<int, std::allocator<int> >::_M_realloc_append<int const&>(int const&)
+   [2] noise::fbm2D(float, float, int, float, float, std::vector<int, std::allocator<int> > const&) [17] Heightmap::resetGrid() [6] void std::shuffle<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>&)
+   [3] noise::perlin2D(float, float, std::vector<int, std::allocator<int> > const&) [5] Heightmap::Heightmap(int, unsigned int, int) [9] _init
+   [8] Heightmap::applyErosion(ErosionMode, ErosionProfile*) [10] std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand() [11] frame_dummy
