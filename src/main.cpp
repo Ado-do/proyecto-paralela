@@ -41,6 +41,7 @@ int main() {
     bool drawWireframe = false;
     bool showControls = true;
     bool is2DMode = false;
+    float uiScale = 1.2f; // Tamaño de texto más grande por defecto (1.2x)
 
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
@@ -53,6 +54,14 @@ int main() {
         // Alternar entre vista 3D y vista 2D del ruido (M)
         if (IsKeyPressed(KEY_M)) {
             is2DMode = !is2DMode;
+        }
+
+        // Cambiar tamaño de la interfaz (+ / -)
+        if (IsKeyPressed(KEY_KP_ADD) || IsKeyPressed(KEY_EQUAL)) {
+            uiScale = std::min(uiScale + 0.1f, 2.0f);
+        }
+        if (IsKeyPressed(KEY_KP_SUBTRACT) || IsKeyPressed(KEY_MINUS)) {
+            uiScale = std::max(uiScale - 0.1f, 0.8f);
         }
 
         // Alternar malla de alambre (Z)
@@ -187,7 +196,7 @@ int main() {
             }
 
             // Interfaz
-            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls, is2DMode);
+            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls, is2DMode, uiScale);
 
             DrawFPS(GetScreenWidth() - 80, 10);
         EndDrawing();
