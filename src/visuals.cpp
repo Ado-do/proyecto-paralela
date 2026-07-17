@@ -163,6 +163,7 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
         DrawText("C: Alternar textura (3D)", (int)colX, (int)(colY + 38.0f * uiScale), fontSizeTiny, LIGHTGRAY);
         DrawText("Z: Alternar malla (3D)", (int)colX, (int)(colY + 56.0f * uiScale), fontSizeTiny, LIGHTGRAY);
         DrawText("P: Pausar cámara (3D)", (int)colX, (int)(colY + 74.0f * uiScale), fontSizeTiny, LIGHTGRAY);
+        DrawText("CTRL-R: Grabar GIF (Pantalla)", (int)colX, (int)(colY + 92.0f * uiScale), fontSizeTiny, SKYBLUE);
 
         // Columna 4: Navegación e Interfaz
         colX += colWidth;

@@ -9,4 +9,5 @@ results/plot/draws/
 
 .clangd
 *.png
+*.gif
 gmon.out

@@ -6,6 +6,10 @@
 
 #include <algorithm>
 #include <omp.h>
+#include <ctime>
+
+#define MSF_GIF_IMPL
+#include "msf_gif.h"
 
 int main() {
     // Inicialización de Raylib con soporte para ventana redimensionable
@@ -45,6 +49,11 @@ int main() {
     bool is2DMode = false;
     float uiScaleModifier = 1.0f;
 
+    // Variables para la grabacion de pantalla en GIF
+    bool gifRecording = false;
+    unsigned int gifFrameCounter = 0;
+    MsfGifState gifState = { 0 };
+
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
 
@@ -53,6 +62,36 @@ int main() {
         float screenH = (float)GetScreenHeight();
         float baseScale = std::min(screenW / 1280.0f, screenH / 720.0f);
         float uiScale = baseScale * uiScaleModifier;
+
+        // Alternar grabacion de pantalla en GIF (CTRL-R)
+        if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && IsKeyPressed(KEY_R)) {
+            if (!gifRecording) {
+                int beginRet = msf_gif_begin(&gifState, GetScreenWidth(), GetScreenHeight());
+                if (beginRet) {
+                    gifRecording = true;
+                    gifFrameCounter = 0;
+                    TraceLog(LOG_INFO, "GIF: Grabacion iniciada a %dx%d", GetScreenWidth(), GetScreenHeight());
+                } else {
+                    TraceLog(LOG_ERROR, "GIF: Error al iniciar la grabacion");
+                }
+            } else {
+                gifRecording = false;
+                MsfGifResult result = msf_gif_end(&gifState);
+                if (result.data) {
+                    time_t rawTime;
+                    time(&rawTime);
+                    struct tm* timeInfo = localtime(&rawTime);
+                    char fileName[64];
+                    strftime(fileName, sizeof(fileName), "recording_%Y%m%d_%H%M%S.gif", timeInfo);
+                    
+                    SaveFileData(fileName, result.data, (int)result.dataSize);
+                    TraceLog(LOG_INFO, "GIF: Grabacion guardada en %s (%d bytes)", fileName, (int)result.dataSize);
+                    msf_gif_free(result);
+                } else {
+                    TraceLog(LOG_WARNING, "GIF: No hay datos grabados");
+                }
+            }
+        }
 
         // Cambiar textura (C)
         if (IsKeyPressed(KEY_C)) {
@@ -222,11 +261,41 @@ int main() {
             // Interfaz
             DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls, showMetrics, is2DMode, uiScale);
 
+            // Dibujar indicador de grabacion GIF si esta activo
+            if (gifRecording) {
+                float titlePanelW = 200.0f * uiScale;
+                float titlePanelH = 40.0f * uiScale;
+                float titlePanelX = (screenW - titlePanelW) / 2.0f;
+                float titlePanelY = 4.0f;
+                
+                float recX = titlePanelX + titlePanelW + 10.0f * uiScale;
+                float recY = titlePanelY + (titlePanelH - 16 * uiScale) / 2.0f;
+                
+                bool blink = ((int)(GetTime() * 2) % 2 == 0);
+                if (blink) {
+                    DrawCircle((int)recX, (int)(recY + 8 * uiScale), (int)(6 * uiScale), RED);
+                } else {
+                    DrawCircle((int)recX, (int)(recY + 8 * uiScale), (int)(6 * uiScale), MAROON);
+                }
+                DrawText("REC", (int)(recX + 12 * uiScale), (int)recY, (int)(16 * uiScale), RED);
+            }
+
             // Dibujar FPS dinámicamente si las métricas están ocultas
             if (!showMetrics) {
                 DrawFPS((int)(GetScreenWidth() - 80 * uiScale), (int)(10 * uiScale));
             }
         EndDrawing();
+
+        // Capturar frame para el GIF (cada 6 frames, aprox. 10 FPS a 60 FPS objetivo)
+        if (gifRecording) {
+            gifFrameCounter++;
+            if ((gifFrameCounter % 6) == 0) {
+                Image imScreen = LoadImageFromScreen();
+                // LoadImageFromScreen ya voltea verticalmente la imagen de forma interna en sistemas de escritorio.
+                msf_gif_frame(&gifState, (uint8_t*)imScreen.data, 10, 16, imScreen.width * 4); // 10cs = 100ms
+                UnloadImage(imScreen);
+            }
+        }
     }
 
     UnloadModel(terrainModel);
