@@ -39,6 +39,7 @@ int main() {
 
     ErosionMode currentErosionMode = ErosionMode::SEQUENTIAL;
     bool drawWireframe = false;
+    bool showControls = true;
 
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
@@ -56,6 +57,11 @@ int main() {
         // Alternar rotación automática de la cámara (P)
         if (IsKeyPressed(KEY_P)) {
             camera.toggleAutoRotate();
+        }
+
+        // Alternar visualización del panel de controles (TAB)
+        if (IsKeyPressed(KEY_TAB)) {
+            showControls = !showControls;
         }
 
         // Cambiar modo de erosión (V)
@@ -149,7 +155,7 @@ int main() {
             camera.endMode();
 
             // Interfaz
-            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate());
+            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls);
 
             DrawFPS(GetScreenWidth() - 80, 10);
         EndDrawing();

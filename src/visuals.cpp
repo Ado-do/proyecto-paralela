@@ -48,7 +48,7 @@ void OrbitCamera::endMode() {
     EndMode3D();
 }
 
-void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWireframe, bool autoRotate) {
+void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWireframe, bool autoRotate, bool showControls) {
     int screenW = GetScreenWidth();
     int screenH = GetScreenHeight();
 
@@ -94,36 +94,44 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
     DrawText(TextFormat("Cámara:  %s", autoRotate ? "Rotación Activa" : "Cámara Manual"), rightPanelX + 25, y, 13, LIGHTGRAY);
 
     // 3. PANEL INFERIOR: Controles agrupados
-    DrawRectangleRounded((Rectangle){ 10, (float)(screenH - 110), (float)(screenW - 20), 100 }, 0.15f, 4, uiPanelColor);
-    DrawRectangleRoundedLines((Rectangle){ 10, (float)(screenH - 110), (float)(screenW - 20), 100 }, 0.15f, 4, uiBorderColor);
+    if (showControls) {
+        DrawRectangleRounded((Rectangle){ 10, (float)(screenH - 110), (float)(screenW - 20), 100 }, 0.15f, 4, uiPanelColor);
+        DrawRectangleRoundedLines((Rectangle){ 10, (float)(screenH - 110), (float)(screenW - 20), 100 }, 0.15f, 4, uiBorderColor);
 
-    int colY = screenH - 100;
-    int colWidth = (screenW - 40) / 4;
+        int colY = screenH - 100;
+        int colWidth = (screenW - 40) / 4;
 
-    // Columna 1: Terreno
-    int colX = 25;
-    DrawText("[TERRENO]", colX, colY, 13, SKYBLUE);
-    DrawText("ESPACIO: Semilla aleatoria", colX, colY + 20, 12, LIGHTGRAY);
-    DrawText("H / L: Semilla (- / +)", colX, colY + 38, 12, LIGHTGRAY);
-    DrawText("J / K: Cant. Octavas", colX, colY + 56, 12, LIGHTGRAY);
+        // Columna 1: Terreno
+        int colX = 25;
+        DrawText("[TERRENO]", colX, colY, 13, SKYBLUE);
+        DrawText("ESPACIO: Semilla aleatoria", colX, colY + 20, 12, LIGHTGRAY);
+        DrawText("H / L: Semilla (- / +)", colX, colY + 38, 12, LIGHTGRAY);
+        DrawText("J / K: Cant. Octavas", colX, colY + 56, 12, LIGHTGRAY);
 
-    // Columna 2: Erosión
-    colX += colWidth;
-    DrawText("[EROSIÓN]", colX, colY, 13, SKYBLUE);
-    DrawText("E: Aplicar Erosión", colX, colY + 20, 12, LIGHTGRAY);
-    DrawText("V: Cambiar modo de erosión", colX, colY + 38, 12, LIGHTGRAY);
+        // Columna 2: Erosión
+        colX += colWidth;
+        DrawText("[EROSIÓN]", colX, colY, 13, SKYBLUE);
+        DrawText("E: Aplicar Erosión", colX, colY + 20, 12, LIGHTGRAY);
+        DrawText("V: Cambiar modo de erosión", colX, colY + 38, 12, LIGHTGRAY);
 
-    // Columna 3: Visualización
-    colX += colWidth;
-    DrawText("[VISUALIZACIÓN]", colX, colY, 13, SKYBLUE);
-    DrawText("C: Alternar textura (Color/Grises)", colX, colY + 20, 12, LIGHTGRAY);
-    DrawText("Z: Alternar malla de alambre", colX, colY + 38, 12, LIGHTGRAY);
-    DrawText("P: Pausar/Reanudar cámara", colX, colY + 56, 12, LIGHTGRAY);
+        // Columna 3: Visualización
+        colX += colWidth;
+        DrawText("[VISUALIZACIÓN]", colX, colY, 13, SKYBLUE);
+        DrawText("C: Alternar textura (Color/Grises)", colX, colY + 20, 12, LIGHTGRAY);
+        DrawText("Z: Alternar malla de alambre", colX, colY + 38, 12, LIGHTGRAY);
+        DrawText("P: Pausar/Reanudar cámara", colX, colY + 56, 12, LIGHTGRAY);
+        DrawText("TAB: Ocultar panel ayuda", colX, colY + 74, 12, SKYBLUE);
 
-    // Columna 4: Navegación e Hilos
-    colX += colWidth;
-    DrawText("[NAVEGACIÓN E HILOS]", colX, colY, 13, SKYBLUE);
-    DrawText("Clic-Der + Arrastrar: Orbitar", colX, colY + 20, 12, LIGHTGRAY);
-    DrawText("Rueda de Mouse: Zoom cámara", colX, colY + 38, 12, LIGHTGRAY);
-    DrawText("X: Alternar cantidad de hilos", colX, colY + 56, 12, LIGHTGRAY);
+        // Columna 4: Navegación e Hilos
+        colX += colWidth;
+        DrawText("[NAVEGACIÓN E HILOS]", colX, colY, 13, SKYBLUE);
+        DrawText("Clic-Der + Arrastrar: Orbitar", colX, colY + 20, 12, LIGHTGRAY);
+        DrawText("Rueda de Mouse: Zoom cámara", colX, colY + 38, 12, LIGHTGRAY);
+        DrawText("X: Alternar cantidad de hilos", colX, colY + 56, 12, LIGHTGRAY);
+    } else {
+        // Pequeño indicador para volver a abrir el panel
+        DrawRectangleRounded((Rectangle){ 10, (float)(screenH - 40), 180, 30 }, 0.15f, 4, uiPanelColor);
+        DrawRectangleRoundedLines((Rectangle){ 10, (float)(screenH - 40), 180, 30 }, 0.15f, 4, uiBorderColor);
+        DrawText("[TAB] Mostrar Controles", 20, screenH - 32, 12, SKYBLUE);
+    }
 }
