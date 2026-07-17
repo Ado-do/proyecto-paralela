@@ -41,7 +41,7 @@ int main() {
     bool drawWireframe = false;
     bool showControls = true;
     bool is2DMode = false;
-    float uiScale = 1.2f; // Tamaño de texto más grande por defecto (1.2x)
+    float uiScale = 1.0f;
 
     while (!WindowShouldClose()) {
         bool needsUpdate = false;

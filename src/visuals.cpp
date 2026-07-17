@@ -52,6 +52,24 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
     int screenW = GetScreenWidth();
     int screenH = GetScreenHeight();
 
+    // 0. TÍTULO EN LA PARTE SUPERIOR CENTRAL (RayMap)
+    float titlePanelW = 200.0f * uiScale;
+    float titlePanelH = 40.0f * uiScale;
+    float titlePanelX = (screenW - titlePanelW) / 2.0f;
+    float titlePanelY = 10.0f; // Alinear con los paneles laterales
+
+    // Dibujar el fondo y borde del panel del título
+    // DrawRectangleRounded((Rectangle){ titlePanelX, titlePanelY, titlePanelW, titlePanelH }, 0.15f, 4, uiPanelColor);
+    // DrawRectangleRoundedLines((Rectangle){ titlePanelX, titlePanelY, titlePanelW, titlePanelH }, 0.15f, 4, uiBorderColor);
+
+    // Dibujar el texto centrado dentro del panel
+    const char* titleText = "RayMap";
+    int titleFontSize = (int)(22.0f * uiScale);
+    int titleTextW = MeasureText(titleText, titleFontSize);
+    int titleTextX = (int)(titlePanelX + (titlePanelW - titleTextW) / 2.0f);
+    int titleTextY = (int)(titlePanelY + (titlePanelH - titleFontSize) / 2.0f);
+    DrawText(titleText, titleTextX, titleTextY, titleFontSize, SKYBLUE);
+
     // 1. PANEL IZQUIERDO: Métricas de Rendimiento y Erosión
     float panelW = 230.0f * uiScale;
     float panelH = 280.0f * uiScale;
@@ -152,6 +170,6 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
         float indicatorH = 30.0f * uiScale;
         DrawRectangleRounded((Rectangle){ 10, (float)(screenH - indicatorH - 10.0f), indicatorW, indicatorH }, 0.15f, 4, uiPanelColor);
         DrawRectangleRoundedLines((Rectangle){ 10, (float)(screenH - indicatorH - 10.0f), indicatorW, indicatorH }, 0.15f, 4, uiBorderColor);
-        DrawText("[TAB] Mostrar Controles", 20, (int)(screenH - indicatorH + 8.0f * uiScale), fontSizeTiny, SKYBLUE);
+        DrawText("[TAB] Mostrar Controles", 20, (int)(screenH - indicatorH + 1.0f * uiScale), fontSizeTiny, SKYBLUE);
     }
 }
