@@ -53,6 +53,8 @@ int main() {
     bool gifRecording = false;
     unsigned int gifFrameCounter = 0;
     MsfGifState gifState = { 0 };
+    int gifRecordWidth = 0;
+    int gifRecordHeight = 0;
 
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
@@ -66,11 +68,15 @@ int main() {
         // Alternar grabacion de pantalla en GIF (CTRL-R)
         if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && IsKeyPressed(KEY_R)) {
             if (!gifRecording) {
-                int beginRet = msf_gif_begin(&gifState, GetScreenWidth(), GetScreenHeight());
+                gifRecordHeight = 480;
+                gifRecordWidth = (int)(((float)GetScreenWidth() / (float)GetScreenHeight()) * 480.0f);
+                if (gifRecordWidth % 2 != 0) gifRecordWidth++; // Asegurar ancho par
+
+                int beginRet = msf_gif_begin(&gifState, gifRecordWidth, gifRecordHeight);
                 if (beginRet) {
                     gifRecording = true;
                     gifFrameCounter = 0;
-                    TraceLog(LOG_INFO, "GIF: Grabacion iniciada a %dx%d", GetScreenWidth(), GetScreenHeight());
+                    TraceLog(LOG_INFO, "GIF: Grabacion iniciada (rescalado a 480p): %dx%d", gifRecordWidth, gifRecordHeight);
                 } else {
                     TraceLog(LOG_ERROR, "GIF: Error al iniciar la grabacion");
                 }
@@ -82,8 +88,8 @@ int main() {
                     time(&rawTime);
                     struct tm* timeInfo = localtime(&rawTime);
                     char fileName[64];
-                    strftime(fileName, sizeof(fileName), "recording_%Y%m%d_%H%M%S.gif", timeInfo);
-                    
+                    strftime(fileName, sizeof(fileName), "raymap_%Y%m%d_%H%M%S.gif", timeInfo);
+
                     SaveFileData(fileName, result.data, (int)result.dataSize);
                     TraceLog(LOG_INFO, "GIF: Grabacion guardada en %s (%d bytes)", fileName, (int)result.dataSize);
                     msf_gif_free(result);
@@ -267,10 +273,10 @@ int main() {
                 float titlePanelH = 40.0f * uiScale;
                 float titlePanelX = (screenW - titlePanelW) / 2.0f;
                 float titlePanelY = 4.0f;
-                
+
                 float recX = titlePanelX + titlePanelW + 10.0f * uiScale;
                 float recY = titlePanelY + (titlePanelH - 16 * uiScale) / 2.0f;
-                
+
                 bool blink = ((int)(GetTime() * 2) % 2 == 0);
                 if (blink) {
                     DrawCircle((int)recX, (int)(recY + 8 * uiScale), (int)(6 * uiScale), RED);
@@ -291,7 +297,8 @@ int main() {
             gifFrameCounter++;
             if ((gifFrameCounter % 6) == 0) {
                 Image imScreen = LoadImageFromScreen();
-                // LoadImageFromScreen ya voltea verticalmente la imagen de forma interna en sistemas de escritorio.
+                // Redimensionar el frame a 480p de alto antes de enviarlo al codificador
+                ImageResize(&imScreen, gifRecordWidth, gifRecordHeight);
                 msf_gif_frame(&gifState, (uint8_t*)imScreen.data, 10, 16, imScreen.width * 4); // 10cs = 100ms
                 UnloadImage(imScreen);
             }
