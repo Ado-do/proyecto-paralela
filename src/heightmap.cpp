@@ -1,6 +1,6 @@
 #include "heightmap.hpp"
 #include "noise.hpp"
-#include "benchmark_config.hpp"
+#include "terrain_config.hpp"
 #include <chrono>
 #include <omp.h>
 #include <iostream>

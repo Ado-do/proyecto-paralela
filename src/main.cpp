@@ -1,4 +1,4 @@
-#include "benchmark_config.hpp"
+#include "terrain_config.hpp"
 #include "raymap_config.hpp"
 #include "raylib.h"
 #include "terrain.hpp"
@@ -30,7 +30,7 @@ int main() {
     // Crear objeto terreno y correr benchmark inicial en modo rápido
     unsigned int currentSeed = 0;
     int currentOctaves = 8;
-    Terrain terrain(mapSize, currentSeed, currentOctaves);
+    Terrain terrain(defaultMapSize, currentSeed, currentOctaves);
     BenchmarkResults results = terrain.runBenchmark(true);
 
     // Cargar modelo y cámara

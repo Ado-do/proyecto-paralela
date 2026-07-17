@@ -1,4 +1,5 @@
 #include "heightmap.hpp"
+#include "benchmark_config.hpp"
 #include <fstream>
 #include <iostream>
 #include <omp.h>
@@ -31,9 +32,7 @@ int main(int argc, char *argv[]) {
         threadCounts.push_back(maxThreads);
     }
 
-    vector<int> sizes = {256, 512, 1024, 2048, 4096};
-
-    for (int size : sizes) {
+    for (int size : benchmarkSizes) {
         cout << "Evaluando rendimiento para tamaño de mapa: " << size << "x" << size << endl;
 
         string noisePath = outDir + "benchmark_noise_" + to_string(size) + ".csv";
@@ -77,15 +76,15 @@ int main(int argc, char *argv[]) {
 
                 // Benchmark Erosion
                 // --- Erosión Secuencial
-                // Warmup (2 pasadas)
-                for (int w = 0; w < 2; w++) {
+                // Warmup
+                for (int w = 0; w < benchmarkWarmups; w++) {
                     heightmap.resetGrid();
                     heightmap.applyErosion(ErosionMode::SEQUENTIAL);
                 }
-                // Repeticiones (5 pasadas, tomamos el promedio)
+                // Repeticiones (promedio)
                 double tSeq = 0.0;
                 ErosionProfile profSeq = {0.0, 0.0, 0.0, 0.0};
-                for (int r = 0; r < 5; r++) {
+                for (int r = 0; r < benchmarkRuns; r++) {
                     heightmap.resetGrid();
                     ErosionProfile prof;
                     double t = heightmap.applyErosion(ErosionMode::SEQUENTIAL, &prof);
@@ -95,22 +94,22 @@ int main(int argc, char *argv[]) {
                     profSeq.simulationTime += prof.simulationTime;
                     profSeq.reductionTime += prof.reductionTime;
                 }
-                tSeq /= 5.0;
-                profSeq.totalTime /= 5.0;
-                profSeq.allocationTime /= 5.0;
-                profSeq.simulationTime /= 5.0;
-                profSeq.reductionTime /= 5.0;
+                tSeq /= (double)benchmarkRuns;
+                profSeq.totalTime /= (double)benchmarkRuns;
+                profSeq.allocationTime /= (double)benchmarkRuns;
+                profSeq.simulationTime /= (double)benchmarkRuns;
+                profSeq.reductionTime /= (double)benchmarkRuns;
 
                 // --- Erosión Paralela Atómica
-                // Warmup (2 pasadas)
-                for (int w = 0; w < 2; w++) {
+                // Warmup
+                for (int w = 0; w < benchmarkWarmups; w++) {
                     heightmap.resetGrid();
                     heightmap.applyErosion(ErosionMode::PARALLEL_ATOMIC);
                 }
-                // Repeticiones (5 pasadas, tomamos el promedio)
+                // Repeticiones (promedio)
                 double tAtomic = 0.0;
                 ErosionProfile profAtomic = {0.0, 0.0, 0.0, 0.0};
-                for (int r = 0; r < 5; r++) {
+                for (int r = 0; r < benchmarkRuns; r++) {
                     heightmap.resetGrid();
                     ErosionProfile prof;
                     double t = heightmap.applyErosion(ErosionMode::PARALLEL_ATOMIC, &prof);
@@ -120,22 +119,22 @@ int main(int argc, char *argv[]) {
                     profAtomic.simulationTime += prof.simulationTime;
                     profAtomic.reductionTime += prof.reductionTime;
                 }
-                tAtomic /= 5.0;
-                profAtomic.totalTime /= 5.0;
-                profAtomic.allocationTime /= 5.0;
-                profAtomic.simulationTime /= 5.0;
-                profAtomic.reductionTime /= 5.0;
+                tAtomic /= (double)benchmarkRuns;
+                profAtomic.totalTime /= (double)benchmarkRuns;
+                profAtomic.allocationTime /= (double)benchmarkRuns;
+                profAtomic.simulationTime /= (double)benchmarkRuns;
+                profAtomic.reductionTime /= (double)benchmarkRuns;
 
                 // --- Erosión Paralela Local Buffers
-                // Warmup (2 pasadas)
-                for (int w = 0; w < 2; w++) {
+                // Warmup
+                for (int w = 0; w < benchmarkWarmups; w++) {
                     heightmap.resetGrid();
                     heightmap.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
                 }
-                // Repeticiones (5 pasadas, tomamos el promedio)
+                // Repeticiones (promedio)
                 double tLocal = 0.0;
                 ErosionProfile profLocal = {0.0, 0.0, 0.0, 0.0};
-                for (int r = 0; r < 5; r++) {
+                for (int r = 0; r < benchmarkRuns; r++) {
                     heightmap.resetGrid();
                     ErosionProfile prof;
                     double t = heightmap.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS, &prof);
@@ -145,11 +144,11 @@ int main(int argc, char *argv[]) {
                     profLocal.simulationTime += prof.simulationTime;
                     profLocal.reductionTime += prof.reductionTime;
                 }
-                tLocal /= 5.0;
-                profLocal.totalTime /= 5.0;
-                profLocal.allocationTime /= 5.0;
-                profLocal.simulationTime /= 5.0;
-                profLocal.reductionTime /= 5.0;
+                tLocal /= (double)benchmarkRuns;
+                profLocal.totalTime /= (double)benchmarkRuns;
+                profLocal.allocationTime /= (double)benchmarkRuns;
+                profLocal.simulationTime /= (double)benchmarkRuns;
+                profLocal.reductionTime /= (double)benchmarkRuns;
 
                 double speedupAtomic = tSeq / tAtomic;
                 double speedupLocal = tSeq / tLocal;

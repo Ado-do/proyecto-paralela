@@ -5,6 +5,9 @@
 inline const int screenWidth = 1280;
 inline const int screenHeight = 720;
 
+// Tamaño inicial del mapa para el visualizador
+inline const int defaultMapSize = 512;
+
 // Colores
 inline const Color colorDeepWater = (Color){20, 50, 150, 255};
 inline const Color colorShallowWater = (Color){40, 90, 200, 255};

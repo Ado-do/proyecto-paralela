@@ -1,27 +1,7 @@
 #pragma once
+#include <vector>
 
-// Parámetros del Terreno
-inline const int mapSize = 512;
-inline const float terrainNoiseScale = 4.0f;
-inline const float terrainPersistence = 0.5f;
-inline const float terrainLacunarity = 2.0f;
-
-// Umbrales del Mapa (Rango de alturas [-1.0, 1.0])
-inline const float heightDeepWater = -0.2f;
-inline const float heightShallowWater = 0.0f;
-inline const float heightSand = 0.1f;
-inline const float heightGrass = 0.45f;
-inline const float heightRock = 0.75f;
-
-// Parámetros de Erosión Hidráulica
-inline const int erosionDroplets = 50000;
-inline const int dropletMaxLifetime = 30;
-inline const float gravity = 4.0f;
-inline const float friction = 0.1f;
-inline const float initialWater = 1.0f;
-inline const float initialSpeed = 1.0f;
-inline const float capacityFactor = 4.0f;
-inline const float depositionSpeed = 0.1f;
-inline const float erosionSpeed = 0.1f;
-inline const float evaporationRate = 0.05f;
-inline const float inertia = 0.05f; // Factor de inercia para la dirección de movimiento de la gota
+// Parámetros específicos para la ejecución de benchmarks
+inline const std::vector<int> benchmarkSizes = {256, 512, 1024, 2048, 4096};
+inline const int benchmarkWarmups = 2;
+inline const int benchmarkRuns = 5;
