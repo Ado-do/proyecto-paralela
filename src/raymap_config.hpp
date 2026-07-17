@@ -16,6 +16,12 @@ inline const Color colorGrass = (Color){60, 150, 40, 255};
 inline const Color colorRock = (Color){100, 90, 80, 255};
 inline const Color colorSnow = (Color){250, 250, 255, 255};
 
+// Colores adicionales de renderizado y visualización (extraídos de main.cpp)
+inline const Color colorBackground = (Color){18, 18, 24, 255};   // Fondo oscuro técnico
+inline const Color colorWireframe = (Color){0, 0, 0, 90};        // Líneas de la malla de alambre (negro translúcido)
+inline const Color colorWaterVolume = (Color){40, 90, 220, 140}; // Plano de agua semi-transparente
+
+
 // Dimensiones del Mesh
 inline const float meshWidth = 180.0f;
 inline const float meshLength = meshWidth;

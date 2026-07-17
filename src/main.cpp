@@ -164,7 +164,7 @@ int main() {
 
         // Render
         BeginDrawing();
-            ClearBackground((Color){ 18, 18, 24, 255 }); // Fondo oscuro técnico
+            ClearBackground(colorBackground); // Fondo oscuro técnico
 
             if (!is2DMode) {
                 camera.beginMode();
@@ -173,13 +173,14 @@ int main() {
 
                     // Superponer malla de alambre si está activa (con pequeño Y offset para evitar Z-fighting)
                     if (drawWireframe) {
-                        DrawModelWires(terrainModel, (Vector3){-meshWidth / 2.0f, 0.1f, -meshLength / 2.0f}, 1.0f, (Color){0, 0, 0, 90});
+                        float y_offset = 0.1f;
+                        DrawModelWires(terrainModel, (Vector3){-meshWidth / 2.0f, y_offset, -meshLength / 2.0f}, 1.0f, colorWireframe);
                     }
 
                     // Dibujar plano de agua semi-transparente solo en modo color/realista
                     if (terrain.isUsingColor()) {
                         Vector3 waterPos = { 0.0f, (heightShallowWater + 1.0f) * 0.5f * meshHeight, 0.0f };
-                        DrawCube(waterPos, meshWidth, 0.1f, meshLength, (Color){40, 90, 220, 140});
+                        DrawCube(waterPos, meshWidth, 0.1f, meshLength, colorWaterVolume);
                     }
 
                     DrawGrid(20, 10.0f);
