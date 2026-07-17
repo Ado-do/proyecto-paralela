@@ -40,6 +40,7 @@ int main() {
     ErosionMode currentErosionMode = ErosionMode::SEQUENTIAL;
     bool drawWireframe = false;
     bool showControls = true;
+    bool showMetrics = true;
     bool is2DMode = false;
     float uiScale = 1.0f;
 
@@ -77,6 +78,11 @@ int main() {
         // Alternar visualización del panel de controles (TAB)
         if (IsKeyPressed(KEY_TAB)) {
             showControls = !showControls;
+        }
+
+        // Alternar visualización del panel de métricas (`)
+        if (IsKeyPressed(KEY_GRAVE)) {
+            showMetrics = !showMetrics;
         }
 
         // Cambiar modo de erosión (V)
@@ -196,7 +202,7 @@ int main() {
             }
 
             // Interfaz
-            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls, is2DMode, uiScale);
+            DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls, showMetrics, is2DMode, uiScale);
 
             DrawFPS(GetScreenWidth() - 80, 10);
         EndDrawing();

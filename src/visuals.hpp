@@ -18,5 +18,4 @@ private:
     float m_height;
     bool m_autoRotate;
 };
-
-void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWireframe, bool autoRotate, bool showControls = true, bool is2DMode = false, float uiScale = 1.2f);
+void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWireframe, bool autoRotate, bool showControls = true, bool showMetrics = true, bool is2DMode = false, float uiScale = 1.2f);
