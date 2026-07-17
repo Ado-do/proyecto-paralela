@@ -8,7 +8,8 @@
 #include <omp.h>
 
 int main() {
-    // Inicialización de Raylib
+    // Inicialización de Raylib con soporte para ventana redimensionable
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "raymap");
     SetTargetFPS(60);
 
@@ -37,15 +38,21 @@ int main() {
     Model terrainModel = terrain.createModel();
     OrbitCamera camera(cameraRadius, cameraHeight, cameraFOV);
 
-    ErosionMode currentErosionMode = ErosionMode::SEQUENTIAL;
+    ErosionMode currentErosionMode = ErosionMode::PARALLEL_ATOMIC;
     bool drawWireframe = false;
     bool showControls = true;
     bool showMetrics = true;
     bool is2DMode = false;
-    float uiScale = 1.0f;
+    float uiScaleModifier = 1.0f;
 
     while (!WindowShouldClose()) {
         bool needsUpdate = false;
+
+        // Calcular uiScale adaptativo al tamaño de la pantalla actual
+        float screenW = (float)GetScreenWidth();
+        float screenH = (float)GetScreenHeight();
+        float baseScale = std::min(screenW / 1280.0f, screenH / 720.0f);
+        float uiScale = baseScale * uiScaleModifier;
 
         // Cambiar textura (C)
         if (IsKeyPressed(KEY_C)) {
@@ -59,10 +66,10 @@ int main() {
 
         // Cambiar tamaño de la interfaz (+ / -)
         if (IsKeyPressed(KEY_KP_ADD) || IsKeyPressed(KEY_EQUAL)) {
-            uiScale = std::min(uiScale + 0.1f, 2.0f);
+            uiScaleModifier = std::min(uiScaleModifier + 0.1f, 2.0f);
         }
         if (IsKeyPressed(KEY_KP_SUBTRACT) || IsKeyPressed(KEY_MINUS)) {
-            uiScale = std::max(uiScale - 0.1f, 0.8f);
+            uiScaleModifier = std::max(uiScaleModifier - 0.1f, 0.5f);
         }
 
         // Alternar malla de alambre (Z)
@@ -182,29 +189,42 @@ int main() {
                 int screenW = GetScreenWidth();
                 int screenH = GetScreenHeight();
 
-                // Mostrar ambos mapas side-by-side
-                int texWidth = 512;
-                int texHeight = 512;
-                int spacing = 40;
-                int totalWidth = texWidth * 2 + spacing;
+                // Calcular dimensiones adaptativas para no solaparse con paneles superior, inferior o laterales
+                float margin = 10.0f * baseScale;
+                float titleH = 40.0f * baseScale;
+                float bottomH = showControls ? (115.0f * baseScale) : 0.0f;
+                float spacing = 40.0f * baseScale;
+
+                float maxTexW = (screenW - 2.0f * margin - spacing) / 2.0f;
+                float maxTexH = screenH - 2.0f * margin - titleH - bottomH - 40.0f * baseScale; // 40.0f para margen de texto
+                float texSize = std::min(maxTexW, maxTexH);
+                if (texSize < 100.0f) texSize = 100.0f;
+
+                int totalWidth = (int)(texSize * 2.0f + spacing);
                 int startX = (screenW - totalWidth) / 2;
-                int startY = (screenH - texHeight) / 2;
+                int startY = (int)(margin + titleH + (screenH - margin - titleH - bottomH - texSize) / 2.0f);
 
-                // 1. Escala de grises
-                DrawTexture(terrain.getTexDebug(), startX, startY, WHITE);
-                DrawRectangleLines(startX - 2, startY - 2, texWidth + 4, texHeight + 4, uiBorderColor);
-                DrawText("Ruido / Alturas (Escala de Grises)", startX, startY - 25, 16, SKYBLUE);
+                // 1. Escala de grises (Dibujado escalado)
+                Rectangle srcRec = { 0.0f, 0.0f, (float)terrain.getTexDebug().width, (float)terrain.getTexDebug().height };
+                Rectangle destRec1 = { (float)startX, (float)startY, texSize, texSize };
+                DrawTexturePro(terrain.getTexDebug(), srcRec, destRec1, (Vector2){0,0}, 0.0f, WHITE);
+                DrawRectangleLines(startX - 2, startY - 2, (int)texSize + 4, (int)texSize + 4, uiBorderColor);
+                DrawText("Ruido / Alturas (Escala de Grises)", startX, startY - (int)(25.0f * baseScale), (int)(16.0f * baseScale), SKYBLUE);
 
-                // 2. Colorizado
-                DrawTexture(terrain.getTexColor(), startX + texWidth + spacing, startY, WHITE);
-                DrawRectangleLines(startX + texWidth + spacing - 2, startY - 2, texWidth + 4, texHeight + 4, uiBorderColor);
-                DrawText("Biomas / Terreno (Colorizado)", startX + texWidth + spacing, startY - 25, 16, SKYBLUE);
+                // 2. Colorizado (Dibujado escalado)
+                Rectangle destRec2 = { (float)(startX + texSize + spacing), (float)startY, texSize, texSize };
+                DrawTexturePro(terrain.getTexColor(), srcRec, destRec2, (Vector2){0,0}, 0.0f, WHITE);
+                DrawRectangleLines(startX + (int)texSize + (int)spacing - 2, startY - 2, (int)texSize + 4, (int)texSize + 4, uiBorderColor);
+                DrawText("Biomas / Terreno (Colorizado)", startX + (int)texSize + (int)spacing, startY - (int)(25.0f * baseScale), (int)(16.0f * baseScale), SKYBLUE);
             }
 
             // Interfaz
             DrawInterface(results, terrain.isUsingColor(), drawWireframe, camera.isAutoRotate(), showControls, showMetrics, is2DMode, uiScale);
 
-            DrawFPS(GetScreenWidth() - 80, 10);
+            // Dibujar FPS dinámicamente si las métricas están ocultas
+            if (!showMetrics) {
+                DrawFPS((int)(GetScreenWidth() - 80 * uiScale), (int)(10 * uiScale));
+            }
         EndDrawing();
     }
 

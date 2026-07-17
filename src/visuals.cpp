@@ -56,7 +56,8 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
     float titlePanelW = 200.0f * uiScale;
     float titlePanelH = 40.0f * uiScale;
     float titlePanelX = (screenW - titlePanelW) / 2.0f;
-    float titlePanelY = 10.0f; // Alinear con los paneles laterales
+    float margin = 10.0f * uiScale;
+    float titlePanelY = 4.0f;
 
     // Dibujar el fondo y borde del panel del título
     // DrawRectangleRounded((Rectangle){ titlePanelX, titlePanelY, titlePanelW, titlePanelH }, 0.15f, 4, uiPanelColor);
@@ -71,7 +72,7 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
     DrawText(titleText, titleTextX, titleTextY, titleFontSize, SKYBLUE);
 
     float panelW = 230.0f * uiScale;
-    float panelH = 280.0f * uiScale;
+    float panelH = 300.0f * uiScale; // Mayor altura para acomodar el campo FPS
 
     int fontSizeTitle = (int)(16.0f * uiScale);
     int fontSizeStandard = (int)(14.0f * uiScale);
@@ -81,13 +82,14 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
 
     // 1. PANEL IZQUIERDO: Métricas de Rendimiento y Erosión
     if (showMetrics) {
-        DrawRectangleRounded((Rectangle){ 10, 10, panelW, panelH }, 0.05f, 4, uiPanelColor);
-        DrawRectangleRoundedLines((Rectangle){ 10, 10, panelW, panelH }, 0.05f, 4, uiBorderColor);
+        DrawRectangleRounded((Rectangle){ margin, margin, panelW, panelH }, 0.05f, 4, uiPanelColor);
+        DrawRectangleRoundedLines((Rectangle){ margin, margin, panelW, panelH }, 0.05f, 4, uiBorderColor);
 
-        float startX = 10.0f + 15.0f * uiScale;
-        float y = 10.0f + 8.0f * uiScale;
+        float startX = margin + 15.0f * uiScale;
+        float y = margin + 8.0f * uiScale;
 
         DrawText("Métricas de Rendimiento", (int)startX, (int)y, fontSizeTitle, SKYBLUE); y += 30.0f * uiScale;
+        DrawText(TextFormat("FPS:          %d", GetFPS()), (int)startX, (int)y, fontSizeStandard, WHITE); y += 20.0f * uiScale;
         DrawText(TextFormat("Hilos Activos: %d", results.numThreads), (int)startX, (int)y, fontSizeStandard, WHITE); y += 20.0f * uiScale;
         DrawText(TextFormat("Secuencial:   %.2f ms", results.timeSequential), (int)startX, (int)y, fontSizeStandard, LIGHTGRAY); y += 20.0f * uiScale;
         DrawText(TextFormat("Paralelo:     %.2f ms", results.timeParallel), (int)startX, (int)y, fontSizeStandard, LIGHTGRAY); y += 22.0f * uiScale;
@@ -108,12 +110,12 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
 
     // 2. PANEL DERECHO: Parámetros del Terreno y Visualización
     if (showMetrics) {
-        float rightPanelX = (float)screenW - panelW - 10.0f;
-        DrawRectangleRounded((Rectangle){ rightPanelX, 10, panelW, panelH }, 0.05f, 4, uiPanelColor);
-        DrawRectangleRoundedLines((Rectangle){ rightPanelX, 10, panelW, panelH }, 0.05f, 4, uiBorderColor);
+        float rightPanelX = (float)screenW - panelW - margin;
+        DrawRectangleRounded((Rectangle){ rightPanelX, margin, panelW, panelH }, 0.05f, 4, uiPanelColor);
+        DrawRectangleRoundedLines((Rectangle){ rightPanelX, margin, panelW, panelH }, 0.05f, 4, uiBorderColor);
 
         float startRightX = rightPanelX + 15.0f * uiScale;
-        float y = 10.0f + 15.0f * uiScale;
+        float y = margin + 15.0f * uiScale;
         DrawText("Parámetros del Terreno", (int)startRightX, (int)y, fontSizeTitle, SKYBLUE); y += 30.0f * uiScale;
         DrawText(TextFormat("Semilla:      %u", results.seed), (int)startRightX, (int)y, fontSizeStandard, LIGHTGRAY); y += 20.0f * uiScale;
         DrawText(TextFormat("Escala:       %.2f", results.scale), (int)startRightX, (int)y, fontSizeStandard, LIGHTGRAY); y += 20.0f * uiScale;
@@ -134,14 +136,14 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
         if (uiScale > 1.2f) {
             bottomH = 125.0f * uiScale;
         }
-        DrawRectangleRounded((Rectangle){ 10, (float)(screenH - bottomH - 10.0f), (float)(screenW - 20), bottomH }, 0.15f, 4, uiPanelColor);
-        DrawRectangleRoundedLines((Rectangle){ 10, (float)(screenH - bottomH - 10.0f), (float)(screenW - 20), bottomH }, 0.15f, 4, uiBorderColor);
+        DrawRectangleRounded((Rectangle){ margin, (float)(screenH - bottomH - margin), (float)(screenW - 2.0f * margin), bottomH }, 0.15f, 4, uiPanelColor);
+        DrawRectangleRoundedLines((Rectangle){ margin, (float)(screenH - bottomH - margin), (float)(screenW - 2.0f * margin), bottomH }, 0.15f, 4, uiBorderColor);
 
-        float colY = (float)screenH - bottomH + 5.0f * uiScale;
-        float colWidth = (float)(screenW - 40) / 4.0f;
+        float colY = (float)screenH - bottomH - margin + 5.0f * uiScale;
+        float colWidth = (float)(screenW - 4.0f * margin) / 4.0f;
 
         // Columna 1: Terreno
-        float colX = 25.0f;
+        float colX = margin + 15.0f * uiScale;
         DrawText("[TERRENO]", (int)colX, (int)colY, fontSizeSmall, SKYBLUE);
         DrawText("ESPACIO: Semilla aleatoria", (int)colX, (int)(colY + 20.0f * uiScale), fontSizeTiny, LIGHTGRAY);
         DrawText("H / L: Semilla (- / +)", (int)colX, (int)(colY + 38.0f * uiScale), fontSizeTiny, LIGHTGRAY);
@@ -174,9 +176,9 @@ void DrawInterface(const BenchmarkResults& results, bool usingColor, bool drawWi
         // Pequeño indicador para volver a abrir el panel
         float indicatorW = 180.0f * uiScale;
         float indicatorH = 30.0f * uiScale;
-        DrawRectangleRounded((Rectangle){ 10, (float)(screenH - indicatorH - 10.0f), indicatorW, indicatorH }, 0.15f, 4, uiPanelColor);
-        DrawRectangleRoundedLines((Rectangle){ 10, (float)(screenH - indicatorH - 10.0f), indicatorW, indicatorH }, 0.15f, 4, uiBorderColor);
-        DrawText("[TAB] Mostrar Controles", 20, (int)(screenH - indicatorH + 1.0f * uiScale), fontSizeTiny, SKYBLUE);
+        DrawRectangleRounded((Rectangle){ margin, (float)(screenH - indicatorH - margin), indicatorW, indicatorH }, 0.15f, 4, uiPanelColor);
+        DrawRectangleRoundedLines((Rectangle){ margin, (float)(screenH - indicatorH - margin), indicatorW, indicatorH }, 0.15f, 4, uiBorderColor);
+        DrawText("[TAB] Mostrar Controles", (int)(margin + 10.0f * uiScale), (int)(screenH - indicatorH - margin + 6.0f * uiScale), fontSizeTiny, SKYBLUE);
     }
 }
 
