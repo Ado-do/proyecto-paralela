@@ -8,6 +8,7 @@ Alonso Bustos
 ## Requerimientos
 
 - Compilador C++17 (g++, clang++, etc)
+- CMake 3.28>=
 - Raylib (Opcional, necesario para visualizador raymap)
 - Gnuplot (Opcional, necesario para gráficar benchmarks)
 
