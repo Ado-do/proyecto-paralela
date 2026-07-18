@@ -1,7 +1,7 @@
 #pragma once
 
 // Parámetros de Ruido / fBm del Terreno
-inline const float terrainNoiseScale = 4.0f;
+inline const float terrainNoiseScale = 2.0f;
 inline const float terrainPersistence = 0.5f;
 inline const float terrainLacunarity = 2.0f;
 

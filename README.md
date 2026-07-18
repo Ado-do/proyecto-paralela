@@ -19,7 +19,11 @@ Alonso Bustos
 #./setup -DBUILD_VISUALIZER=OFF # Agregar flag para no requerir raylib (necesario para servidores como colcura)
 
 ./run_test.sh      # Ejecutar tests
+
 ./run_raymap.sh    # Ejecutar raymap (Visualizador)
+
 ./run_benchmark.sh # Ejecutar benchmarks (no requiere raylib)
-./run_profile.sh   # Ejecutar profiling
+#./run_benchmark.sh -p # Profiling opcional
+
+./plot             # Gŕaficar
 ```
