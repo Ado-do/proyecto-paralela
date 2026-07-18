@@ -18,12 +18,21 @@ Alonso Bustos
 ./setup.sh
 #./setup -DBUILD_VISUALIZER=OFF # Agregar flag para no requerir raylib (necesario para servidores como colcura)
 
-./run_test.sh      # Ejecutar tests
+# Ejecutar visualizador
+./run_raymap.sh
 
-./run_raymap.sh    # Ejecutar raymap (Visualizador)
-
-./run_benchmark.sh # Ejecutar benchmarks (no requiere raylib)
+# Ejecutar benchmarks (no requiere raylib)
+./run_benchmark.sh
 #./run_benchmark.sh -p # Profiling opcional
 
-./plot             # Gŕaficar
+# Graficar (requeriere Gnuplot)
+./plot.sh
+```
+
+## Tests
+
+El proyecto cuenta con pruebas unitarias implementadas con `doctest`, que sirven como set de pruebas y validación física. Se puede ejecutar usando:
+
+```sh
+./run_test.sh
 ```
