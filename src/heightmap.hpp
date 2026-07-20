@@ -44,9 +44,10 @@ public:
     unsigned int getSeed() const { return m_seed; }
     int getOctaves() const { return m_octaves; }
 
-private:
     void generateSequential();
     void generateParallel();
+
+private:
 
     int m_size;
     unsigned int m_seed;
