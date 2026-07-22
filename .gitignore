@@ -2,6 +2,7 @@
 build/
 docs/
 report/
+presentation/
 
 results-*/
 results/*.csv

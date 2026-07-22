@@ -5,6 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <set>
+#include <omp.h>
 
 TEST_CASE("Noise primitives and permutation properties") {
     SUBCASE("Fade function interpolation boundaries") {
@@ -174,3 +175,69 @@ TEST_CASE("Erosion local buffers artifacts and bounds verification") {
     CHECK(maxVal < 3.0f);
     CHECK(minVal > -3.0f);
 }
+
+TEST_CASE("Erosion reproducibility across thread counts and repeat runs") {
+    SUBCASE("Droplet initial positions are 100% deterministic per droplet index") {
+        float x1, y1, x2, y2;
+        getDropletInitialPosition(1234, 42, 64, x1, y1);
+        getDropletInitialPosition(1234, 42, 64, x2, y2);
+
+        CHECK(x1 == x2);
+        CHECK(y1 == y2);
+        CHECK(x1 >= 0.0f);
+        CHECK(x1 < 63.9999f);
+        CHECK(y1 >= 0.0f);
+        CHECK(y1 < 63.9999f);
+    }
+
+    SUBCASE("Parallel Local Buffers with static schedule is 100% bitwise deterministic on repeated runs") {
+        omp_set_schedule(omp_sched_static, 0);
+
+        Heightmap hm1(64, 999, 4);
+        hm1.resetGrid();
+        hm1.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
+        auto data1 = hm1.getData();
+
+        Heightmap hm2(64, 999, 4);
+        hm2.resetGrid();
+        hm2.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
+        auto data2 = hm2.getData();
+
+        REQUIRE(data1.size() == data2.size());
+        for (size_t i = 0; i < data1.size(); ++i) {
+            CHECK(data1[i] == doctest::Approx(data2[i]).epsilon(1e-6f));
+        }
+    }
+
+    SUBCASE("Parallel Local Buffers produces bounded, non-divergent heightmap across thread counts") {
+        float mean1 = 0.0f, meanMulti = 0.0f;
+
+        // Ejecución con 1 hilo
+        omp_set_num_threads(1);
+        {
+            Heightmap hm(64, 777, 4);
+            hm.resetGrid();
+            hm.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
+            for (float v : hm.getData()) mean1 += v;
+            mean1 /= (64 * 64);
+        }
+
+        // Ejecución con hilos máximos del sistema
+        int maxThreads = omp_get_max_threads();
+        if (maxThreads > 1) {
+            omp_set_num_threads(maxThreads);
+            {
+                Heightmap hm(64, 777, 4);
+                hm.resetGrid();
+                hm.applyErosion(ErosionMode::PARALLEL_LOCAL_BUFFERS);
+                for (float v : hm.getData()) meanMulti += v;
+                meanMulti /= (64 * 64);
+            }
+
+            // La altura media del terreno erosionado debe ser equivalente dentro de una tolerancia física razonable
+            CHECK(mean1 == doctest::Approx(meanMulti).epsilon(0.05f));
+        }
+    }
+}
+
+

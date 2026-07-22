@@ -120,12 +120,10 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
 
     if (mode == ErosionMode::SEQUENTIAL) {
         auto startSim = chrono::high_resolution_clock::now();
-        mt19937 prng(m_seed);
-        uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
 
         for (int i = 0; i < erosionDroplets; i++) {
-            float posX = distCoord(prng);
-            float posY = distCoord(prng);
+            float posX, posY;
+            getDropletInitialPosition(i, m_seed, m_size, posX, posY);
             float velX = 0.0f;
             float velY = 0.0f;
             float speed = initialSpeed;
@@ -235,14 +233,10 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
         auto startSim = chrono::high_resolution_clock::now();
         #pragma omp parallel
         {
-            int threadId = omp_get_thread_num();
-            mt19937 prng(m_seed + threadId);
-            uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
-
             #pragma omp for schedule(runtime)
             for (int i = 0; i < erosionDroplets; i++) {
-                float posX = distCoord(prng);
-                float posY = distCoord(prng);
+                float posX, posY;
+                getDropletInitialPosition(i, m_seed, m_size, posX, posY);
                 float velX = 0.0f;
                 float velY = 0.0f;
                 float speed = initialSpeed;
@@ -378,13 +372,11 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
         {
             int threadId = omp_get_thread_num();
             float* myDelta = &localDelta[threadId * m_size * m_size];
-            mt19937 prng(m_seed + threadId);
-            uniform_real_distribution<float> distCoord(0.0f, m_size - 1.0001f);
 
             #pragma omp for schedule(runtime)
             for (int i = 0; i < erosionDroplets; i++) {
-                float posX = distCoord(prng);
-                float posY = distCoord(prng);
+                float posX, posY;
+                getDropletInitialPosition(i, m_seed, m_size, posX, posY);
                 float velX = 0.0f;
                 float velY = 0.0f;
                 float speed = initialSpeed;

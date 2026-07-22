@@ -70,7 +70,7 @@ Image Terrain::createColorImage() {
 
             float scaleX = meshWidth / size;
             float scaleZ = meshLength / size;
-            
+
             float dx = (hR - hL) * meshHeight / (2.0f * scaleX);
             float dz = (hU - hD) * meshHeight / (2.0f * scaleZ);
 
