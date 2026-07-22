@@ -148,8 +148,7 @@ int main() {
             double tErosion = terrain.applyErosion(currentErosionMode);
             results.timeErosion = tErosion;
             results.erosionMode = currentErosionMode;
-            UnloadModel(terrainModel);
-            terrainModel = terrain.createModel();
+            terrain.updateModel(terrainModel);
         }
 
         // Rotar hilos (X)
@@ -199,8 +198,7 @@ int main() {
         if (needsUpdate) {
             results = terrain.runBenchmark(true);
             results.erosionMode = currentErosionMode;
-            UnloadModel(terrainModel);
-            terrainModel = terrain.createModel();
+            terrain.updateModel(terrainModel);
         }
 
         if (!is2DMode) {

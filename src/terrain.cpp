@@ -151,6 +151,28 @@ Model Terrain::createModel() {
     return model;
 }
 
+void Terrain::updateModel(Model& model) {
+    if (!m_texturesLoaded) {
+        model = createModel();
+        return;
+    }
+
+    Image imgHeight = createHeightImage();
+    Image imgColor = createColorImage();
+
+    // 1. Actualización de píxeles en GPU VRAM utilizando UpdateTexture (reutilizando IDs de textura OpenGL)
+    UpdateTexture(m_texDebug, imgHeight.data);
+    UpdateTexture(m_texColor, imgColor.data);
+
+    // 2. Reemplazo limpio del buffer de malla 3D en GPU usando GenMeshHeightmap de Raylib
+    UnloadMesh(model.meshes[0]);
+    model.meshes[0] = GenMeshHeightmap(imgHeight, (Vector3){ meshWidth, meshHeight, meshLength });
+    UploadMesh(&model.meshes[0], false);
+
+    UnloadImage(imgHeight);
+    UnloadImage(imgColor);
+}
+
 void Terrain::toggleTexture(Model& model) {
     m_usingColor = !m_usingColor;
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = m_usingColor ? m_texColor : m_texDebug;

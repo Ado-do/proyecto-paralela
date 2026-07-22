@@ -16,6 +16,7 @@ public:
 
     // Métodos específicos de Raylib para renderizado 3D
     Model createModel();
+    void updateModel(Model& model);
     void toggleTexture(Model& model);
     bool isUsingColor() const { return m_usingColor; }
 
