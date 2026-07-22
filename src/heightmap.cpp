@@ -363,7 +363,15 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
     } 
     else if (mode == ErosionMode::PARALLEL_LOCAL_BUFFERS) {
         auto startAlloc = chrono::high_resolution_clock::now();
-        vector<float> localDelta(numThreads * m_size * m_size, 0.0f);
+        // Asignar memoria de deltas locales
+        size_t totalDeltaSize = static_cast<size_t>(numThreads) * m_size * m_size;
+        vector<float> localDelta(totalDeltaSize);
+
+        // Inicialización First-Touch paralela con OpenMP para distribuir páginas en nodos NUMA
+        #pragma omp parallel for schedule(static)
+        for (size_t i = 0; i < totalDeltaSize; ++i) {
+            localDelta[i] = 0.0f;
+        }
         auto endAlloc = chrono::high_resolution_clock::now();
         tAlloc = chrono::duration<double, milli>(endAlloc - startAlloc).count();
 
@@ -484,15 +492,22 @@ double Heightmap::applyErosion(ErosionMode mode, ErosionProfile* profile) {
         auto endSim = chrono::high_resolution_clock::now();
         tSim = chrono::duration<double, milli>(endSim - startSim).count();
 
-        // Parallel reduction back to m_data
+        // Reducción paralela optimizada por bloques contiguos y vectorización SIMD
         auto startRed = chrono::high_resolution_clock::now();
-        #pragma omp parallel for schedule(runtime)
-        for (int idx = 0; idx < m_size * m_size; idx++) {
-            float sum = 0.0f;
+        const int totalGridSize = m_size * m_size;
+        const int BLOCK_SIZE = 4096;
+
+        #pragma omp parallel for schedule(static)
+        for (int b = 0; b < totalGridSize; b += BLOCK_SIZE) {
+            int chunkSize = min(BLOCK_SIZE, totalGridSize - b);
             for (int t = 0; t < numThreads; t++) {
-                sum += localDelta[t * m_size * m_size + idx];
+                const float* src = &localDelta[t * totalGridSize + b];
+                float* dst = &m_data[b];
+                #pragma omp simd
+                for (int k = 0; k < chunkSize; k++) {
+                    dst[k] += src[k];
+                }
             }
-            m_data[idx] += sum;
         }
         auto endRed = chrono::high_resolution_clock::now();
         tRed = chrono::duration<double, milli>(endRed - startRed).count();
